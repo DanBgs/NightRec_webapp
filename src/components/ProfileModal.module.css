@@ -1,0 +1,64 @@
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; backdrop-filter: blur(4px); padding: 20px;
+}
+
+.modal {
+  width: 100%; max-width: 460px; padding: 28px;
+  max-height: 90vh; overflow-y: auto;
+  animation: slideUp 0.25s ease both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.head h3 { font-size: 20px; font-family: 'Syne', sans-serif; color: var(--text); }
+.closeBtn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px; }
+.closeBtn:hover { color: var(--text); }
+
+.loadingWrap { display: flex; justify-content: center; padding: 40px 0; }
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  background: var(--red-bg); color: var(--red);
+  border-radius: 10px; padding: 12px; font-size: 13px; margin-bottom: 16px;
+}
+
+.label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-sec); margin: 16px 0 7px;
+}
+.optional { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+.toggleRow { display: flex; gap: 10px; }
+.toggleBtn {
+  flex: 1; background: var(--bg-input); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 12px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; transition: all 0.15s;
+}
+.toggleBtn:hover { border-color: var(--accent); }
+.toggleBtnSel { border-color: var(--accent); background: var(--accent-bg); }
+.toggleLabel { font-size: 14px; font-weight: 600; color: var(--text); }
+.toggleSub { font-size: 11px; color: var(--text-muted); }
+.toggleBtnSel .toggleLabel { color: var(--accent); }
+
+.footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
