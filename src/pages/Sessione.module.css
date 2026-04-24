@@ -1,45 +1,45 @@
 .root { min-height:100vh; display:flex; flex-direction:column; }
 .loadingScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; }
-
+ 
 .header { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; margin:14px; position:sticky; top:14px; z-index:50; }
 .back { background:none; color:var(--accent); font-size:14px; font-weight:600; cursor:pointer; border:none; }
 .headerCenter { flex:1; text-align:center; }
 .closeBtn { font-size:13px; }
-
+ 
 .layout { display:grid; grid-template-columns:320px 1fr; gap:20px; padding:8px 20px 40px; max-width:1200px; margin:0 auto; width:100%; }
 @media (max-width:900px) { .layout { grid-template-columns:1fr; } }
-
+ 
 .leftCol { display:flex; flex-direction:column; gap:14px; }
 .rightCol { display:flex; flex-direction:column; gap:16px; }
-
+ 
 /* Gauge */
 .gauge { background:var(--bg-card); border:2px solid var(--border); border-radius:var(--radius-lg); padding:28px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:4px; transition:border-color 0.3s; }
 .gaugeLabel { font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
 .gaugeValue { font-size:72px; font-weight:800; font-family:'Syne',sans-serif; letter-spacing:-3px; line-height:1; margin:6px 0; }
 .gaugeUnit { font-size:14px; color:var(--text-muted); }
 .gaugeBadge { margin-top:12px; padding:6px 18px; border-radius:20px; font-size:13px; font-weight:700; }
-
+ 
 /* Info cards */
 .infoCards { display:flex; flex-direction:column; gap:10px; }
 .infoCard { padding:14px 16px; border-radius:var(--radius); }
 .infoCardTitle { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
 .infoCardVal { font-size:18px; font-weight:700; color:var(--text); }
 .infoCardSub { font-size:12px; color:var(--text-sec); margin-top:2px; }
-
+ 
 /* Counters */
 .counters { padding:16px; display:flex; align-items:center; }
 .counter { flex:1; text-align:center; }
 .counterVal { display:block; font-size:16px; font-weight:700; color:var(--text); text-transform:capitalize; }
 .counterLbl { display:block; font-size:11px; color:var(--text-muted); margin-top:2px; }
 .counterDiv { width:1px; height:32px; background:var(--border); }
-
+ 
 .actions { display:flex; gap:10px; }
-
+ 
 /* Chart */
 .chartCard { padding:20px; }
 .chartTitle { font-size:16px; font-family:'Syne',sans-serif; color:var(--text); margin-bottom:16px; }
 .chartLegend { display:flex; gap:16px; justify-content:center; margin-top:10px; font-size:11px; flex-wrap:wrap; }
-
+ 
 /* Drink list */
 .drinkList { padding:20px; }
 .drinkListTitle { font-size:16px; font-family:'Syne',sans-serif; color:var(--text); margin-bottom:14px; }
@@ -51,7 +51,7 @@
 .drinkName { display:block; font-size:14px; font-weight:600; color:var(--text); }
 .drinkTime { display:block; font-size:12px; color:var(--text-muted); margin-top:2px; }
 .drinkG { font-size:13px; font-weight:700; color:var(--accent); }
-
+ 
 /* Modal */
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; justify-content:center; z-index:200; backdrop-filter:blur(4px); }
 @media (min-width:600px) { .overlay { align-items:center; } }
@@ -75,3 +75,175 @@
 .intG { font-size:11px; color:var(--text-muted); }
 .modalPreview { margin-top:16px; padding:12px 14px; background:var(--bg-input); border-radius:var(--radius); font-size:13px; color:var(--text-sec); }
 .modalPreview strong { color:var(--text); }
+ 
+/* ── Barra BAC orizzontale ───────────────────────────────────────── */
+.bacBar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.bacBarLabels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.bacBarTitle { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.bacBarZona  { font-size: 13px; font-weight: 700; }
+ 
+.bacBarTrack {
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
+  overflow: visible;
+  display: flex;
+  background: var(--bg-input);
+}
+.bacBarZoneSobrio   { background: #94a3b8; opacity: 0.35; height: 100%; border-radius: 7px 0 0 7px; }
+.bacBarZoneSweet    { background: #16a34a; opacity: 0.35; height: 100%; }
+.bacBarZoneAlterato { background: #dc2626; opacity: 0.35; height: 100%; border-radius: 0 7px 7px 0; flex: 1; }
+ 
+.bacBarIndicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  transition: left 0.5s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  z-index: 2;
+}
+ 
+.bacBarThreshold {
+  position: absolute;
+  top: -18px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.bacBarThreshold::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+}
+ 
+.bacBarLegend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+ 
+/* ── Rimozione drink ─────────────────────────────────────────────── */
+.drinkRemove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.drinkRemove:hover { background: var(--red-bg); color: var(--red); }
+ 
+/* ── Admin tag ───────────────────────────────────────────────────── */
+.adminTag {
+  display: inline-block;
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+ 
+/* ── Admin panel ─────────────────────────────────────────────────── */
+.adminPanel {
+  background: var(--bg-card);
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 4px;
+}
+.adminHeader { margin-bottom: 16px; }
+.adminBadge {
+  display: inline-block;
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.adminSub { font-size: 12px; color: var(--text-muted); display: block; }
+ 
+.adminSliderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.adminSliderLabel { font-size: 13px; font-weight: 600; color: var(--text); }
+.adminSimBac      { font-size: 13px; font-weight: 700; }
+ 
+.adminSlider {
+  width: 100%;
+  accent-color: var(--amber);
+  cursor: pointer;
+  height: 6px;
+  margin-bottom: 4px;
+}
+.adminSliderTicks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+ 
+.adminStats {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.adminStatCell {
+  background: var(--bg-input);
+  border-radius: 8px;
+  padding: 8px 4px;
+  text-align: center;
+  border-top: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.adminStatTime { display: block; font-size: 9px; color: var(--text-muted); margin-bottom: 4px; }
+.adminStatVal  { display: block; font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif; }
+ 
+.adminReset {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+.adminReset:hover { background: var(--bg-input); }
+ 
