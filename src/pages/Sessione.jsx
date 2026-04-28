@@ -13,10 +13,10 @@ import {
 import {
   creaProfiloUtente, calcolaBACTotale, generaCurvaBac,
   calcolaGhostPeak, calcolaCountdownGuida, analizzaDrinkRavvicinati,
-  getGrammiPreset, getZonaBac,
+  calcolaTempoAZero, getGrammiPreset, getZonaBac, DATABASE_BEVANDE,
 } from '../lib/bacEngine.js'
 import s from './Sessione.module.css'
- 
+
 const CATS = [
   { key: 'birra',    emoji: '🍺', label: 'Birra'    },
   { key: 'vino',     emoji: '🍷', label: 'Vino'     },
@@ -25,21 +25,21 @@ const CATS = [
 ]
 const INTENS = ['leggero', 'ideale', 'pesante']
 const BAC_MAX_DISPLAY = 1.5 // g/l — massimo della barra visiva
- 
+
 function drinkToCalcolo(d) {
   return {
     grammi: Number(d.grammi_alcol),
     timestamp_ms: new Date(d.timestamp).getTime(),
   }
 }
- 
+
 // ── Barra orizzontale BAC ─────────────────────────────────────────────
 function BacBar({ bac }) {
   const pct     = Math.min(bac / BAC_MAX_DISPLAY, 1) * 100
   const zona    = getZonaBac(bac)
   const color   = zona === 'sobrio' ? '#94a3b8' : zona === 'sweet_spot' ? '#16a34a' : '#dc2626'
   const label   = zona === 'sobrio' ? 'Sobrio' : zona === 'sweet_spot' ? 'Sweet Spot' : 'Alterato'
- 
+
   return (
     <div className={s.bacBar}>
       <div className={s.bacBarLabels}>
@@ -69,7 +69,7 @@ function BacBar({ bac }) {
     </div>
   )
 }
- 
+
 // ── Gauge numerica ────────────────────────────────────────────────────
 function BacGauge({ bac, zona }) {
   const color =
@@ -87,30 +87,30 @@ function BacGauge({ bac, zona }) {
     </div>
   )
 }
- 
+
 // ── Pannello Admin: simulazione temporale ─────────────────────────────
 function AdminPanel({ drinks, profilo, onTimeOffset }) {
   const [offset, setOffset] = useState(0)
   if (!profilo) return null
- 
+
   const handleChange = (val) => {
     setOffset(val)
     onTimeOffset(val * 60 * 1000) // converte minuti in ms
   }
- 
+
   const mapped  = drinks.filter(d => d.categoria !== 'acqua').map(drinkToCalcolo)
   const simTime = Date.now() + offset * 60 * 1000
   const simBac  = mapped.length ? calcolaBACTotale(mapped, simTime, profilo) : 0
   const simZona = getZonaBac(simBac)
   const simColor = simZona === 'sobrio' ? '#94a3b8' : simZona === 'sweet_spot' ? '#16a34a' : '#dc2626'
- 
+
   return (
     <div className={s.adminPanel}>
       <div className={s.adminHeader}>
         <span className={s.adminBadge}>🛠 Admin Debug</span>
         <span className={s.adminSub}>Simula il BAC nel tempo senza aspettare</span>
       </div>
- 
+
       <div className={s.adminSliderRow}>
         <span className={s.adminSliderLabel}>
           {offset === 0
@@ -123,7 +123,7 @@ function AdminPanel({ drinks, profilo, onTimeOffset }) {
           BAC simulato: {simBac.toFixed(3)} g/l
         </span>
       </div>
- 
+
       <input
         type="range"
         className={s.adminSlider}
@@ -133,14 +133,14 @@ function AdminPanel({ drinks, profilo, onTimeOffset }) {
         value={offset}
         onChange={e => handleChange(Number(e.target.value))}
       />
- 
+
       <div className={s.adminSliderTicks}>
         <span>-2h</span>
         <span>Ora</span>
         <span>+4h</span>
         <span>+8h</span>
       </div>
- 
+
       <div className={s.adminStats}>
         {[-60,-30,0,60,120,180,240].map(min => {
           const t   = Date.now() + min * 60 * 1000
@@ -156,21 +156,21 @@ function AdminPanel({ drinks, profilo, onTimeOffset }) {
           )
         })}
       </div>
- 
+
       <button className={s.adminReset} onClick={() => handleChange(0)}>
         ↺ Torna all'ora attuale
       </button>
     </div>
   )
 }
- 
+
 // ── Componente principale ─────────────────────────────────────────────
 export default function Sessione() {
   const { id }     = useParams()
   const { user }   = useAuth()
   const { isDark } = useTheme()
   const nav        = useNavigate()
- 
+
   const [sessione, setSessione]     = useState(null)
   const [drinks, setDrinks]         = useState([])
   const [profilo, setProfilo]       = useState(null)
@@ -180,50 +180,52 @@ export default function Sessione() {
   const [ghost, setGhost]           = useState(null)
   const [countdown, setCountdown]   = useState(null)
   const [avviso, setAvviso]         = useState(null)
+  const [tempoAZero, setTempoAZero] = useState(null)
   const [curva, setCurva]           = useState([])
   const [loading, setLoading]       = useState(true)
   const [timeOffset, setTimeOffset] = useState(0) // ms, solo admin
- 
+
   // Drink modal
   const [showModal, setShowModal] = useState(false)
   const [catSel, setCatSel]       = useState('birra')
   const [intSel, setIntSel]       = useState('ideale')
   const [adding, setAdding]       = useState(false)
- 
+
   // Profile modal
   const [showProfile, setShowProfile] = useState(false)
   const [peso, setPeso]               = useState('70')
   const [sesso, setSesso]             = useState('uomo')
   const [patente, setPatente]         = useState('standard')
- 
+
   // Ref per timer
   const drinksRef      = useRef([])
   const profiloRef     = useRef(null)
   const timeOffsetRef  = useRef(0)
- 
+
   // ── Ricalcola ────────────────────────────────────────────────────
   const ricalcola = (drinksAgg, prof, offsetMs = 0) => {
     const mapped = drinksAgg
       .filter(d => d.categoria !== 'acqua')
       .map(drinkToCalcolo)
- 
+
     if (mapped.length === 0) {
       setBac(0); setZona('sobrio'); setGhost(null)
       setCountdown(null); setAvviso({ avviso: false, messaggio: '' }); setCurva([])
       return
     }
- 
+
     const now    = Date.now() + offsetMs
     const bacVal = calcolaBACTotale(mapped, now, prof)
- 
+
     setBac(Math.round(bacVal * 1000) / 1000)
     setZona(getZonaBac(bacVal))
     setGhost(calcolaGhostPeak(mapped, prof))
     setCountdown(calcolaCountdownGuida(mapped, prof))
     setAvviso(analizzaDrinkRavvicinati(mapped))
+    setTempoAZero(calcolaTempoAZero(mapped, prof))
     setCurva(generaCurvaBac(mapped, prof, 5))
   }
- 
+
   // ── Caricamento iniziale ─────────────────────────────────────────
   useEffect(() => {
     if (!user || !id) return
@@ -233,14 +235,14 @@ export default function Sessione() {
         setSessione(sess)
         setDrinks(d)
         drinksRef.current = d
- 
+
         const p = await caricaProfile(user.id)
         if (!p) { setShowProfile(true); setLoading(false); return }
- 
+
         // Controlla ruolo admin dal metadata
         const meta = user.user_metadata ?? {}
         setIsAdmin(meta.role === 'admin')
- 
+
         const prof = creaProfiloUtente(p.peso_kg, p.sesso, p.tipo_patente, sess.stomaco)
         setProfilo(prof)
         profiloRef.current = prof
@@ -249,7 +251,7 @@ export default function Sessione() {
       finally { setLoading(false) }
     })()
   }, [user, id])
- 
+
   // ── Timer 30s ───────────────────────────────────────────────────
   useEffect(() => {
     const t = setInterval(() => {
@@ -258,7 +260,7 @@ export default function Sessione() {
     }, 30000)
     return () => clearInterval(t)
   }, [])
- 
+
   // ── Admin: time offset ───────────────────────────────────────────
   const handleTimeOffset = (offsetMs) => {
     setTimeOffset(offsetMs)
@@ -266,7 +268,7 @@ export default function Sessione() {
     if (drinksRef.current.length > 0 && profiloRef.current)
       ricalcola(drinksRef.current, profiloRef.current, offsetMs)
   }
- 
+
   // ── Salva profilo ────────────────────────────────────────────────
   const handleSalvaProfilo = async () => {
     if (!user) return
@@ -278,7 +280,7 @@ export default function Sessione() {
       ricalcola(drinksRef.current, prof, timeOffsetRef.current)
     } catch (e) { alert(e.message) }
   }
- 
+
   // ── Aggiungi drink ───────────────────────────────────────────────
   const handleAggiungiDrink = async () => {
     if (!user || !id || !profilo) return
@@ -294,7 +296,7 @@ export default function Sessione() {
     } catch (e) { alert(e.message) }
     finally { setAdding(false) }
   }
- 
+
   // ── Rimuovi drink ────────────────────────────────────────────────
   const handleRimuoviDrink = async (drinkId) => {
     if (!window.confirm('Rimuovere questo drink?')) return
@@ -306,7 +308,7 @@ export default function Sessione() {
       ricalcola(nuovi, profilo, timeOffsetRef.current)
     } catch (e) { alert(e.message) }
   }
- 
+
   // ── Acqua ────────────────────────────────────────────────────────
   const handleAcqua = async () => {
     if (!user || !id) return
@@ -317,7 +319,7 @@ export default function Sessione() {
       setDrinks(nuovi)
     } catch (e) { alert(e.message) }
   }
- 
+
   // ── Chiudi serata ────────────────────────────────────────────────
   const handleChiudi = async () => {
     if (!window.confirm('Vuoi concludere questa serata?')) return
@@ -328,7 +330,7 @@ export default function Sessione() {
       nav('/')
     } catch (e) { alert(e.message) }
   }
- 
+
   // ── Chart data ───────────────────────────────────────────────────
   const chartData = curva.map(p => ({
     label_ora: p.label_ora,
@@ -338,18 +340,18 @@ export default function Sessione() {
     alterato:  p.bac > 0.5 ? p.bac : 0,
     bac:       p.bac,
   }))
- 
+
   const drinkCount = drinks.filter(d => d.categoria !== 'acqua').length
   const acquaCount = drinks.filter(d => d.categoria === 'acqua').length
   const greenColor = isDark ? '#4ade80' : '#16a34a'
   const redColor   = isDark ? '#f87171' : '#dc2626'
- 
+
   if (loading) return (
     <div className={s.loadingScreen}>
       <div style={{ width:36,height:36,border:'3px solid var(--border)',borderTopColor:'var(--accent)',borderRadius:'50%',animation:'spin .7s linear infinite' }} />
     </div>
   )
- 
+
   return (
     <div className={s.root}>
       <header className={`${s.header} card`}>
@@ -362,20 +364,20 @@ export default function Sessione() {
         </div>
         <button className={`btn-ghost ${s.closeBtn}`} onClick={handleChiudi}>Chiudi serata</button>
       </header>
- 
+
       <div className={s.layout}>
- 
+
         {/* ── Sinistra ──────────────────────────────────────────── */}
         <div className={s.leftCol}>
- 
+
           <div className="fade-up">
             <BacGauge bac={bac} zona={zona} />
           </div>
- 
+
           <div className="fade-up-2">
             <BacBar bac={bac} />
           </div>
- 
+
           <div className={`${s.infoCards} fade-up-3`}>
             {ghost && ghost.bac_picco > bac + 0.005 && (
               <div className={`card ${s.infoCard}`}
@@ -397,13 +399,28 @@ export default function Sessione() {
                 )}
               </div>
             )}
+
+            {tempoAZero !== null && tempoAZero > 0 && (
+              <div className={`card ${s.infoCard}`} style={{ borderLeft:'3px solid var(--text-muted)' }}>
+                <div className={s.infoCardTitle}>⏱ Smaltimento completo</div>
+                <div className={s.infoCardVal} style={{ fontSize:15 }}>
+                  {Math.floor(tempoAZero / 60) > 0
+                    ? `${Math.floor(tempoAZero / 60)}h ${tempoAZero % 60}min`
+                    : `${tempoAZero} min`}
+                </div>
+                <div className={s.infoCardSub}>
+                  Alcol completamente smaltito alle{' '}
+                  {new Date(Date.now() + tempoAZero * 60000).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            )}
             {avviso?.avviso && (
               <div className={`card ${s.infoCard}`} style={{ borderLeft:'3px solid var(--red)' }}>
                 <div className={s.infoCardVal} style={{ fontSize:13 }}>{avviso.messaggio}</div>
               </div>
             )}
           </div>
- 
+
           <div className={`card ${s.counters} fade-up-4`}>
             <div className={s.counter}>
               <span className={s.counterVal}>{drinkCount}</span>
@@ -422,16 +439,16 @@ export default function Sessione() {
               <span className={s.counterLbl}>stomaco</span>
             </div>
           </div>
- 
+
           <div className={`${s.actions} fade-up-4`}>
             <button className="btn-ghost" style={{ flex:1 }} onClick={handleAcqua}>💧 Acqua</button>
             <button className="btn-primary" style={{ flex:2 }} onClick={() => setShowModal(true)}>+ Drink</button>
           </div>
         </div>
- 
+
         {/* ── Destra ────────────────────────────────────────────── */}
         <div className={s.rightCol}>
- 
+
           {/* Admin panel */}
           {isAdmin && (
             <AdminPanel
@@ -440,7 +457,7 @@ export default function Sessione() {
               onTimeOffset={handleTimeOffset}
             />
           )}
- 
+
           {/* Grafico curva */}
           {chartData.length > 0 ? (
             <div className={`card ${s.chartCard} fade-up`}>
@@ -497,7 +514,7 @@ export default function Sessione() {
               <p style={{ color:'var(--text-muted)', fontSize:14 }}>Aggiungi il primo drink per vedere il grafico</p>
             </div>
           )}
- 
+
           {/* Lista drink con rimozione */}
           <div className={`card ${s.drinkList} fade-up-2`}>
             <h3 className={s.drinkListTitle}>
@@ -535,10 +552,10 @@ export default function Sessione() {
               ))
             }
           </div>
- 
+
         </div>
       </div>
- 
+
       {/* ── Modal drink ───────────────────────────────────────────────── */}
       {showModal && (
         <div className={s.overlay} onClick={() => setShowModal(false)}>
@@ -559,16 +576,26 @@ export default function Sessione() {
             </div>
             <p className={s.modalLabel}>Intensità</p>
             <div className={s.intRow}>
-              {INTENS.map(i => (
-                <button key={i} className={`${s.intBtn} ${intSel===i ? s.intBtnSel : ''}`}
-                  onClick={() => setIntSel(i)}>
-                  <span className={s.intLabel}>{i}</span>
-                  <span className={s.intG}>{getGrammiPreset(catSel, i)}g alcol</span>
-                </button>
-              ))}
+              {INTENS.map(i => {
+                const v = DATABASE_BEVANDE[catSel]?.varianti[i]
+                const g = getGrammiPreset(catSel, i)
+                return (
+                  <button key={i} className={`${s.intBtn} ${intSel===i ? s.intBtnSel : ''}`}
+                    onClick={() => setIntSel(i)}>
+                    <span className={s.intLabel}>{i}</span>
+                    <span className={s.intG}>{v ? `${v.abv}% · ${g.toFixed(0)}g` : `${g.toFixed(0)}g`}</span>
+                  </button>
+                )
+              })}
             </div>
             <div className={s.modalPreview}>
-              Stai aggiungendo: <strong>{CATS.find(c=>c.key===catSel)?.emoji} {catSel} {intSel}</strong> · <strong>{getGrammiPreset(catSel, intSel)}g</strong> di alcol puro
+              {(() => {
+                const v = DATABASE_BEVANDE[catSel]?.varianti[intSel]
+                const g = getGrammiPreset(catSel, intSel)
+                return v
+                  ? <>{CATS.find(c=>c.key===catSel)?.emoji} <strong>{v.label}</strong> · {v.volume_ml}ml {v.abv}% · <strong>{g.toFixed(1)}g</strong> alcol puro</>
+                  : <>Aggiungendo <strong>{g.toFixed(1)}g</strong> di alcol puro</>
+              })()}
             </div>
             <button className="btn-primary" style={{ width:'100%', marginTop:16 }}
               onClick={handleAggiungiDrink} disabled={adding}>
@@ -577,7 +604,7 @@ export default function Sessione() {
           </div>
         </div>
       )}
- 
+
       {/* ── Modal profilo ─────────────────────────────────────────────── */}
       {showProfile && (
         <div className={s.overlay}>
