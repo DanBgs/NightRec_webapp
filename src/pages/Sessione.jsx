@@ -52,18 +52,20 @@ function BacBar({ bac }) {
         <span className={s.bacBarTitle}>Livello alcolemico</span>
         <span className={s.bacBarZona} style={{ color }}>{label} · {Number(bac).toFixed(3)} g/l</span>
       </div>
-      <div className={s.bacBarTrack}>
-        <div className={s.bacBarZoneSobrio}   style={{ width: `${(0.2/BAC_MAX_DISPLAY)*100}%` }} />
-        <div className={s.bacBarZoneSweet}    style={{ width: `${(0.3/BAC_MAX_DISPLAY)*100}%` }} />
-        <div className={s.bacBarZoneAlterato} style={{ width: `${(1.0/BAC_MAX_DISPLAY)*100}%` }} />
-        <div className={s.bacBarIndicator}    style={{ left: `calc(${pct}% - 6px)`, background: color }} />
-        <div className={s.bacBarThreshold}    style={{ left: `${(0.2/BAC_MAX_DISPLAY)*100}%` }}><span>0.2</span></div>
-        <div className={s.bacBarThreshold}    style={{ left: `${(0.5/BAC_MAX_DISPLAY)*100}%` }}><span>0.5</span></div>
-      </div>
-      <div className={s.bacBarLegend}>
-        <span style={{ color:'#94a3b8' }}>Sobrio</span>
-        <span style={{ color:'#16a34a' }}>Sweet Spot</span>
-        <span style={{ color:'#dc2626' }}>Alterato</span>
+      <div style={{ position: 'relative', paddingBottom: 28 }}>
+        <div className={s.bacBarTrack}>
+          <div className={s.bacBarZoneSobrio}   style={{ width: `${(0.2/BAC_MAX_DISPLAY)*100}%` }} />
+          <div className={s.bacBarZoneSweet}    style={{ width: `${(0.3/BAC_MAX_DISPLAY)*100}%` }} />
+          <div className={s.bacBarZoneAlterato} style={{ width: `${(1.0/BAC_MAX_DISPLAY)*100}%` }} />
+          <div className={s.bacBarIndicator}    style={{ left: `calc(${pct}% - 10px)`, background: color }} />
+          <div className={s.bacBarThreshold}    style={{ left: `${(0.2/BAC_MAX_DISPLAY)*100}%` }}><span>0.2</span></div>
+          <div className={s.bacBarThreshold}    style={{ left: `${(0.5/BAC_MAX_DISPLAY)*100}%` }}><span>0.5</span></div>
+        </div>
+        <div className={s.bacBarLegend}>
+          <span style={{ color:'#94a3b8' }}>Sobrio</span>
+          <span style={{ color:'#16a34a' }}>Sweet Spot</span>
+          <span style={{ color:'#dc2626' }}>Alterato</span>
+        </div>
       </div>
     </div>
   )
@@ -468,6 +470,11 @@ export default function Sessione() {
             {sessione ? new Date(sessione.data_inizio).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) : ''}
           </span>
           {isAdmin && <span className={s.adminTag}>👑 Admin</span>}
+        </div>
+        <div className={s.userIcon} style={{marginLeft:8, marginRight:8, fontWeight:500, fontSize:15}}>
+          {user && user.user_metadata && user.user_metadata.username
+            ? user.user_metadata.username
+            : 'profilo'}
         </div>
         <button className={`btn-ghost ${s.closeBtn}`} onClick={handleChiudi}>Chiudi serata</button>
       </header>

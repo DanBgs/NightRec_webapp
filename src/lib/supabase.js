@@ -132,3 +132,12 @@ export const caricaCurvaBAC = async (sessionId) => {
   if (error) throw error
   return data
 }
+
+// ELIMINA SESSIONE (e tutti i drink/snapshot collegati via CASCADE)
+export const eliminaSessione = async (sessionId) => {
+  const { error } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId)
+  if (error) throw error
+}

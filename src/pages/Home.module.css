@@ -64,3 +64,48 @@
 
 .cardArrow { position:absolute; right:20px; bottom:20px; color:var(--text-muted); font-size:16px; transition:transform 0.15s, color 0.15s; }
 .sessionCard:hover .cardArrow { transform:translateX(4px); color:var(--accent); }
+
+/* ── Eliminazione serata ──────────────────────────────────────── */
+.cardClickArea { cursor: pointer; flex: 1; }
+.sessionCard { position: relative; padding: 20px; cursor: default; transition: transform 0.15s, box-shadow 0.15s; }
+.sessionCard:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+.deleteCardBtn {
+  position: absolute; top: 14px; right: 44px;
+  background: none; border: none; font-size: 15px;
+  color: var(--text-muted); cursor: pointer; padding: 4px 6px;
+  border-radius: 8px; transition: background 0.15s, color 0.15s; opacity: 0;
+}
+.sessionCard:hover .deleteCardBtn { opacity: 1; }
+.deleteCardBtn:hover { background: var(--red-bg); color: var(--red); }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(4px); padding: 20px; }
+
+.deleteModal { width: 100%; max-width: 380px; padding: 28px; text-align: center; }
+.deleteIcon  { font-size: 36px; margin-bottom: 12px; }
+.deleteTitle { font-size: 20px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 12px; }
+.deleteText  { font-size: 14px; color: var(--text-sec); line-height: 1.6; margin-bottom: 24px; }
+.deleteText strong { color: var(--text); }
+.deleteActions { display: flex; gap: 10px; justify-content: center; }
+.deleteBtn {
+  background: var(--red); color: #fff; border: none; border-radius: var(--radius);
+  padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: 'Syne', sans-serif; transition: opacity 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.deleteBtn:hover { opacity: 0.85; }
+.deleteBtn:disabled { opacity: 0.6; }
+
+/* ── Modal profilo ───────────────────────────────────────────── */
+.modal { width: 100%; max-width: 460px; padding: 28px; max-height: 90vh; overflow-y: auto; }
+.modalHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modalHead h3 { font-size: 20px; font-family: 'Syne', sans-serif; color: var(--text); }
+.modalClose { background: none; font-size: 20px; color: var(--text-muted); cursor: pointer; border: none; }
+.modalLabel { display: block; font-size: 12px; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 8px; }
+.modalOptRow { display: flex; gap: 10px; }
+.modalOpt { flex: 1; background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--radius); padding: 12px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.15s; }
+.modalOpt:hover { border-color: var(--accent); }
+.modalOptSel { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.modalFooter { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.modalError   { background: var(--red-bg);   color: var(--red);   border-radius: 10px; padding: 12px; font-size: 13px; margin-bottom: 12px; }
+.modalSuccess { background: var(--green-bg); color: var(--green); border-radius: 10px; padding: 12px; font-size: 13px; margin-bottom: 12px; }
