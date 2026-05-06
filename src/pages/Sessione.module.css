@@ -81,25 +81,24 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px 18px 14px;
+  padding: 16px 18px 14px;
 }
 .bacBarLabels {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px; /* spazio per le label soglia sopra la barra */
+  margin-bottom: 10px;
 }
 .bacBarTitle { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .bacBarZona  { font-size: 13px; font-weight: 700; }
 
 .bacBarTrack {
   position: relative;
-  height: 20px;         /* barra più alta */
+  height: 20px;
   border-radius: 10px;
   overflow: visible;
   display: flex;
   background: var(--bg-input);
-  margin-bottom: 28px;  /* spazio per la legenda sotto */
 }
 .bacBarZoneSobrio   { background: #94a3b8; opacity: 0.38; height: 100%; border-radius: 10px 0 0 10px; }
 .bacBarZoneSweet    { background: #16a34a; opacity: 0.38; height: 100%; }
@@ -120,33 +119,23 @@
 
 .bacBarThreshold {
   position: absolute;
-  top: -22px;            /* sopra la barra, non sovrapposto */
-  transform: translateX(-50%);
-  font-size: 11px;
-  color: var(--text-muted);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: rgba(255,255,255,0.8);
   font-weight: 700;
   white-space: nowrap;
-  background: var(--bg-card);
-  padding: 1px 4px;
-  border-radius: 4px;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 .bacBarThreshold::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 20px;          /* linea che scende fino alla barra */
-  background: var(--border);
+  display: none;
 }
 
 .bacBarLegend {
   display: flex;
   justify-content: space-between;
-  position: absolute;
-  bottom: -24px;         /* sotto la barra */
-  left: 0; right: 0;
+  margin-top: 10px;
   font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
@@ -260,10 +249,12 @@
   font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px;
 }
 .closedLayout {
-  display: grid; grid-template-columns: 380px 1fr; gap: 20px;
-  padding: 16px 20px 40px; max-width: 1100px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 340px 1fr; gap: 20px;
+  padding: 16px 20px 40px; max-width: 1200px; margin: 0 auto; width: 100%;
 }
-@media (max-width: 800px) { .closedLayout { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .closedLayout { grid-template-columns: 1fr; } }
+
+.closedLeft { display: flex; flex-direction: column; gap: 16px; }
 
 .closedSummary { padding: 24px; }
 .closedTitle { font-size: 20px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 20px; }

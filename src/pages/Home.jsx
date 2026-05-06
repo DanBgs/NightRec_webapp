@@ -132,10 +132,15 @@ export default function Home() {
   const [loading, setLoading]           = useState(true)
   const [showProfile, setShowProfile]   = useState(false)
   const [sessioneDaEliminare, setSessioneDaEliminare] = useState(null)
+  const [nomeUtente, setNomeUtente]     = useState('')
 
   const carica = () => {
     if (!user) return
     caricaSessioni(user.id).then(data => { setSessioni(data); setLoading(false) })
+    caricaProfile(user.id).then(p => {
+      if (p && p.username) setNomeUtente(p.username)
+      else setNomeUtente(user.email ? user.email.split('@')[0] : '')
+    }).catch(() => {})
   }
 
   useEffect(() => { carica() }, [user])
@@ -162,8 +167,14 @@ export default function Home() {
           </div>
         </div>
         <div className={s.headerRight}>
-          <button className="btn-ghost" onClick={toggle} title="Tema">{isDark ? '☀️' : '🌙'}</button>
-          <button className="btn-ghost" onClick={() => setShowProfile(true)}>👤 Profilo</button>
+          <button className={s.themeSwitch} onClick={toggle} title={isDark ? 'Passa al tema chiaro' : 'Passa al tema scuro'} aria-label="Cambia tema">
+            <span className={`${s.themeSwitchTrack} ${isDark ? s.themeSwitchDark : ''}`}>
+              <span className={s.themeSwitchThumb}>
+                {isDark ? '🌙' : '☀️'}
+              </span>
+            </span>
+          </button>
+          <button className="btn-ghost" onClick={() => setShowProfile(true)}>👤 {nomeUtente || 'Profilo'}</button>
           <button className="btn-ghost" onClick={handleLogout}>Esci</button>
           <button className="btn-primary" onClick={() => nav('/nuova')}>+ Nuova serata</button>
         </div>
@@ -224,15 +235,21 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Pulsante elimina separato */}
-                <button
-                  className={s.deleteCardBtn}
-                  onClick={e => { e.stopPropagation(); setSessioneDaEliminare(sess) }}
-                  title="Elimina serata">
-                  🗑
-                </button>
-
-                <div className={s.cardArrow} onClick={() => nav(`/sessione/${sess.id}`)}>→</div>
+                {/* Footer card con azioni */}
+                <div className={s.cardFooter}>
+                  <button
+                    className={s.deleteCardBtn}
+                    onClick={e => { e.stopPropagation(); setSessioneDaEliminare(sess) }}
+                    title="Elimina serata">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Elimina
+                  </button>
+                  <button className={s.cardOpenBtn} onClick={() => nav(`/sessione/${sess.id}`)}>
+                    {sess.data_fine ? 'Vedi dettagli' : 'Apri serata'} →
+                  </button>
+                </div>
               </div>
             ))}
           </div>

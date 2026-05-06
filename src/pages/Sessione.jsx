@@ -52,20 +52,18 @@ function BacBar({ bac }) {
         <span className={s.bacBarTitle}>Livello alcolemico</span>
         <span className={s.bacBarZona} style={{ color }}>{label} · {Number(bac).toFixed(3)} g/l</span>
       </div>
-      <div style={{ position: 'relative', paddingBottom: 28 }}>
-        <div className={s.bacBarTrack}>
-          <div className={s.bacBarZoneSobrio}   style={{ width: `${(0.2/BAC_MAX_DISPLAY)*100}%` }} />
-          <div className={s.bacBarZoneSweet}    style={{ width: `${(0.3/BAC_MAX_DISPLAY)*100}%` }} />
-          <div className={s.bacBarZoneAlterato} style={{ width: `${(1.0/BAC_MAX_DISPLAY)*100}%` }} />
-          <div className={s.bacBarIndicator}    style={{ left: `calc(${pct}% - 10px)`, background: color }} />
-          <div className={s.bacBarThreshold}    style={{ left: `${(0.2/BAC_MAX_DISPLAY)*100}%` }}><span>0.2</span></div>
-          <div className={s.bacBarThreshold}    style={{ left: `${(0.5/BAC_MAX_DISPLAY)*100}%` }}><span>0.5</span></div>
-        </div>
-        <div className={s.bacBarLegend}>
-          <span style={{ color:'#94a3b8' }}>Sobrio</span>
-          <span style={{ color:'#16a34a' }}>Sweet Spot</span>
-          <span style={{ color:'#dc2626' }}>Alterato</span>
-        </div>
+      <div className={s.bacBarTrack}>
+        <div className={s.bacBarZoneSobrio}   style={{ width: `${(0.2/BAC_MAX_DISPLAY)*100}%` }} />
+        <div className={s.bacBarZoneSweet}    style={{ width: `${(0.3/BAC_MAX_DISPLAY)*100}%` }} />
+        <div className={s.bacBarZoneAlterato} style={{ width: `${(1.0/BAC_MAX_DISPLAY)*100}%` }} />
+        <div className={s.bacBarIndicator}    style={{ left: `calc(${pct}% - 10px)`, background: color }} />
+        <div className={s.bacBarThreshold}    style={{ left: `${(0.2/BAC_MAX_DISPLAY)*100}%` }}><span>0.2</span></div>
+        <div className={s.bacBarThreshold}    style={{ left: `${(0.5/BAC_MAX_DISPLAY)*100}%` }}><span>0.5</span></div>
+      </div>
+      <div className={s.bacBarLegend}>
+        <span style={{ color:'#94a3b8' }}>Sobrio</span>
+        <span style={{ color:'#16a34a' }}>Sweet Spot</span>
+        <span style={{ color:'#dc2626' }}>Alterato</span>
       </div>
     </div>
   )
@@ -86,7 +84,7 @@ function BacGauge({ bac, zona }) {
 }
 
 // ── Vista serata chiusa (sola lettura) ────────────────────────────────
-function SessioneChiusa({ sessione, drinks, isDark }) {
+function SessioneChiusa({ sessione, drinks, isDark, profilo }) {
   const nav        = useNavigate()
   const greenColor = isDark ? '#4ade80' : '#16a34a'
   const redColor   = isDark ? '#f87171' : '#dc2626'
@@ -97,14 +95,25 @@ function SessioneChiusa({ sessione, drinks, isDark }) {
   const zonaColor  = zona==='sobrio' ? '#94a3b8' : zona==='sweet_spot' ? greenColor : redColor
   const zonaLabel  = zona==='sobrio' ? 'Sobrio' : zona==='sweet_spot' ? 'Sweet Spot' : 'Alterato'
 
-  const fmtOra = (iso) => new Date(iso).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })
+  const fmtOra  = (iso) => new Date(iso).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })
   const fmtData = (iso) => new Date(iso).toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
 
-  // Dati grafico dalla curva salvata — ricostuiamo dai drink
-  // (la curva storica non è salvata in dettaglio quindi la ricalcoliamo)
   const durataOre = sessione.data_fine
     ? (new Date(sessione.data_fine) - new Date(sessione.data_inizio)) / 3600000
     : 0
+
+  // Ricalcola la curva storica dai drink
+  const curvaStorica = profilo && drinkAlcol.length > 0
+    ? generaCurvaBac(drinkAlcol.map(d => ({ grammi: Number(d.grammi_alcol), timestamp_ms: new Date(d.timestamp).getTime() })), profilo, 5)
+    : []
+
+  const chartData = curvaStorica.map(p => ({
+    label_ora: p.label_ora,
+    sobrio:    p.bac > 0 && p.bac <= 0.2 ? p.bac : p.bac > 0.2 ? 0.2 : 0,
+    sweet:     p.bac > 0.2 && p.bac <= 0.5 ? p.bac : p.bac > 0.5 ? 0.5 : 0,
+    alterato:  p.bac > 0.5 ? p.bac : 0,
+    bac:       p.bac,
+  }))
 
   return (
     <div className={s.root}>
@@ -118,7 +127,8 @@ function SessioneChiusa({ sessione, drinks, isDark }) {
 
       <div className={s.closedLayout}>
 
-        {/* Riepilogo */}
+        {/* Colonna sinistra: riepilogo + lista */}
+        <div className={s.closedLeft}>
         <div className={`card ${s.closedSummary}`}>
           <h2 className={s.closedTitle}>Riepilogo serata</h2>
           <div className={s.closedStats}>
@@ -176,6 +186,53 @@ function SessioneChiusa({ sessione, drinks, isDark }) {
             ))
           }
         </div>
+        </div>
+
+        {/* Colonna destra: grafico storico */}
+        {chartData.length > 0 && (
+          <div className={`card ${s.chartCard}`}>
+            <h3 className={s.chartTitle}>Curva BAC della serata</h3>
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={chartData} margin={{top:10,right:16,bottom:0,left:-20}}>
+                <defs>
+                  <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#94a3b8" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="hgG" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor={greenColor} stopOpacity={0.5}/>
+                    <stop offset="95%" stopColor={greenColor} stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="hgR" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor={redColor} stopOpacity={0.5}/>
+                    <stop offset="95%" stopColor={redColor} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="label_ora" tick={{fontSize:10,fill:'var(--text-muted)'}} interval="preserveStartEnd"/>
+                <YAxis tick={{fontSize:10,fill:'var(--text-muted)'}} domain={[0,'auto']} tickFormatter={v=>v.toFixed(2)}/>
+                <Tooltip
+                  contentStyle={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,fontSize:12}}
+                  formatter={(val,name)=>{
+                    if(!val||val===0) return null
+                    const l={sobrio:'Sobrio',sweet:'Sweet Spot',alterato:'Alterato'}
+                    return [`${Number(val).toFixed(3)} g/l`,l[name]??name]
+                  }}
+                  labelStyle={{color:'var(--text-sec)',marginBottom:4}}
+                />
+                <ReferenceLine y={0.5} stroke={redColor}   strokeDasharray="4 4" strokeWidth={1.5}/>
+                <ReferenceLine y={0.2} stroke={greenColor} strokeDasharray="4 4" strokeWidth={1.5}/>
+                <Area type="monotone" dataKey="sobrio"   stroke="#94a3b8"   strokeWidth={2} fill="url(#hgS)" dot={false} activeDot={{r:4}}/>
+                <Area type="monotone" dataKey="sweet"    stroke={greenColor} strokeWidth={2} fill="url(#hgG)" dot={false} activeDot={{r:4}}/>
+                <Area type="monotone" dataKey="alterato" stroke={redColor}   strokeWidth={2} fill="url(#hgR)" dot={false} activeDot={{r:4}}/>
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className={s.chartLegend}>
+              <span style={{color:'#94a3b8'}}>⬤ Sobrio &lt;0.2</span>
+              <span style={{color:greenColor}}>⬤ Sweet Spot 0.2–0.5</span>
+              <span style={{color:redColor}}>⬤ Alterato &gt;0.5</span>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
@@ -457,7 +514,7 @@ export default function Sessione() {
 
   // ── Vista sola lettura se serata chiusa ───────────────────────────
   if (sessione?.data_fine) {
-    return <SessioneChiusa sessione={sessione} drinks={drinks} isDark={isDark} />
+    return <SessioneChiusa sessione={sessione} drinks={drinks} isDark={isDark} profilo={profilo} />
   }
 
   // ── Vista attiva ──────────────────────────────────────────────────
@@ -470,11 +527,6 @@ export default function Sessione() {
             {sessione ? new Date(sessione.data_inizio).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}) : ''}
           </span>
           {isAdmin && <span className={s.adminTag}>👑 Admin</span>}
-        </div>
-        <div className={s.userIcon} style={{marginLeft:8, marginRight:8, fontWeight:500, fontSize:15}}>
-          {user && user.user_metadata && user.user_metadata.username
-            ? user.user_metadata.username
-            : 'profilo'}
         </div>
         <button className={`btn-ghost ${s.closeBtn}`} onClick={handleChiudi}>Chiudi serata</button>
       </header>
