@@ -288,3 +288,6 @@
   font-family: 'Syne', sans-serif; transition: opacity 0.15s;
 }
 .confirmBtn:hover { opacity: 0.85; }
+
+/* ── Foto card ───────────────────────────────────────────────────── */
+.fotoCard { padding: 20px; }

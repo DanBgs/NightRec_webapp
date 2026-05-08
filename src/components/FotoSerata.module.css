@@ -1,0 +1,203 @@
+/* ── Root ────────────────────────────────────────────────────────── */
+.root { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Header ──────────────────────────────────────────────────────── */
+.header { display: flex; align-items: center; justify-content: space-between; }
+.title  {
+  font-size: 16px; font-family: 'Syne', sans-serif; color: var(--text);
+  display: flex; align-items: center; gap: 8px; margin: 0;
+}
+.count {
+  background: var(--accent-bg); color: var(--accent);
+  font-size: 11px; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; font-family: 'DM Sans', sans-serif;
+}
+.actions { display: flex; gap: 8px; align-items: center; }
+
+.uploadBtn {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 10px; padding: 7px 14px; font-size: 13px;
+  font-weight: 600; color: var(--text-sec); cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.uploadBtn:hover { background: var(--border); color: var(--text); }
+
+.cameraBtn {
+  background: var(--accent); border: none; border-radius: 10px;
+  padding: 7px 14px; font-size: 13px; font-weight: 600; color: #fff;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: opacity 0.15s;
+}
+.cameraBtn:hover { opacity: 0.88; }
+.hidden { display: none; }
+
+/* ── Error ───────────────────────────────────────────────────────── */
+.error {
+  background: var(--red-bg); color: var(--red);
+  border-radius: 10px; padding: 10px 14px; font-size: 13px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 32px 20px; text-align: center;
+  border: 1.5px dashed var(--border); border-radius: var(--radius-lg);
+}
+.empty p { font-size: 13px; color: var(--text-muted); max-width: 200px; line-height: 1.5; }
+
+/* ── Loading skeletons ───────────────────────────────────────────── */
+.loadingGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.skeleton {
+  aspect-ratio: 1; border-radius: 10px;
+  background: linear-gradient(90deg, var(--bg-input) 25%, var(--border) 50%, var(--bg-input) 75%);
+  background-size: 200% 100%; animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── Grid foto ───────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+.thumb {
+  position: relative; aspect-ratio: 1; border-radius: 10px;
+  overflow: hidden; cursor: pointer; background: var(--bg-input);
+}
+.thumbImg {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.2s;
+}
+.thumb:hover .thumbImg { transform: scale(1.05); }
+.thumbOverlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0);
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  padding: 6px; transition: background 0.2s; opacity: 0;
+}
+.thumb:hover .thumbOverlay { background: rgba(0,0,0,0.25); opacity: 1; }
+.thumbCaption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: white; font-size: 10px; padding: 12px 6px 5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Camera modal ────────────────────────────────────────────────── */
+.cameraOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  z-index: 300; display: flex; align-items: flex-end; justify-content: center;
+  backdrop-filter: blur(6px);
+}
+@media (min-width: 600px) { .cameraOverlay { align-items: center; } }
+
+.cameraModal {
+  background: var(--bg-card); border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 500px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+@media (min-width: 600px) { .cameraModal { border-radius: 20px; } }
+
+.cameraHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.cameraTitle { font-size: 15px; font-weight: 700; color: var(--text); font-family: 'Syne', sans-serif; }
+.cameraCloseBtn {
+  background: var(--bg-input); border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; display: grid; place-items: center;
+  color: var(--text-sec); transition: background 0.15s;
+}
+.cameraCloseBtn:hover { background: var(--border); }
+
+.cameraViewport {
+  background: #000; width: 100%; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.cameraVideo { width: 100%; height: 100%; object-fit: cover; }
+.cameraPreviewImg { width: 100%; height: 100%; object-fit: contain; }
+
+.captionRow { padding: 12px 16px; border-top: 1px solid var(--border); }
+.captionInput {
+  width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text);
+  outline: none; font-family: inherit;
+}
+.captionInput:focus { border-color: var(--accent); }
+.captionInput::placeholder { color: var(--text-muted); }
+
+.cameraControls {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px 24px; gap: 12px;
+}
+.ctrlBtnSecondary {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 18px; font-size: 13px;
+  font-weight: 600; color: var(--text-sec); cursor: pointer;
+  transition: background 0.15s; min-width: 80px; text-align: center;
+}
+.ctrlBtnSecondary:hover:not(:disabled) { background: var(--border); }
+.ctrlBtnSecondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ctrlBtnPrimary {
+  background: var(--accent); border: none; border-radius: 12px;
+  padding: 10px 22px; font-size: 14px; font-weight: 700; color: #fff;
+  cursor: pointer; transition: opacity 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.ctrlBtnPrimary:hover:not(:disabled) { opacity: 0.88; }
+.ctrlBtnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Pulsante otturatore circolare */
+.shutterBtn {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: white; border: 4px solid rgba(255,255,255,0.3);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s; flex-shrink: 0;
+}
+.shutterBtn:hover:not(:disabled) { transform: scale(1.05); }
+.shutterBtn:active:not(:disabled) { transform: scale(0.95); }
+.shutterBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.shutterInner {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: white; border: 2px solid #ccc;
+  display: block;
+}
+
+/* ── Lightbox ────────────────────────────────────────────────────── */
+.lightboxOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+  z-index: 400; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(8px);
+}
+.lightboxContent {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; max-width: 90vw; max-height: 90vh; width: 100%;
+}
+.lightboxClose {
+  position: fixed; top: 20px; right: 20px;
+  background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+  width: 40px; height: 40px; cursor: pointer; display: grid; place-items: center;
+  transition: background 0.15s;
+}
+.lightboxClose:hover { background: rgba(255,255,255,0.2); }
+
+.lightboxImg {
+  max-width: 100%; max-height: 70vh; border-radius: 12px;
+  object-fit: contain; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.lightboxCaption {
+  color: rgba(255,255,255,0.9); font-size: 15px; text-align: center;
+  max-width: 500px; line-height: 1.5;
+}
+.lightboxMeta {
+  display: flex; align-items: center; gap: 20px;
+  color: rgba(255,255,255,0.5); font-size: 12px;
+}
+.lightboxDelete {
+  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+  color: #f87171; border-radius: 8px; padding: 6px 12px; font-size: 12px;
+  cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px;
+  transition: background 0.15s;
+}
+.lightboxDelete:hover { background: rgba(239,68,68,0.25); }

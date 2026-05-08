@@ -16,6 +16,7 @@ import {
   calcolaTempoAZero, getGrammiPreset, getZonaBac, DATABASE_BEVANDE,
 } from '../lib/bacEngine.js'
 import { DrinkIcon } from '../components/DrinkIcon.jsx'
+import FotoSerata from '../components/FotoSerata.jsx'
 import s from './Sessione.module.css'
 
 const CATS = [
@@ -185,6 +186,11 @@ function SessioneChiusa({ sessione, drinks, isDark, profilo }) {
               </div>
             ))
           }
+        </div>
+
+        {/* Foto della serata */}
+        <div className={`card ${s.fotoCard}`}>
+          <FotoSerata sessionId={sessione.id} userId={sessione.user_id} solaLettura={true} />
         </div>
         </div>
 
@@ -670,6 +676,14 @@ export default function Sessione() {
               ))
             }
           </div>
+        </div>
+      </div>
+
+          {/* Foto serata */}
+          <div className={`card ${s.fotoCard} fade-up-3`}>
+            <FotoSerata sessionId={id} userId={user?.id} solaLettura={false} />
+          </div>
+
         </div>
       </div>
 
