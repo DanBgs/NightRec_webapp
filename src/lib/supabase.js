@@ -141,3 +141,73 @@ export const eliminaSessione = async (sessionId) => {
     .eq('id', sessionId)
   if (error) throw error
 }
+
+// ── FOTO SESSIONE ────────────────────────────────────────────────────
+
+export const caricaFotoSessione = async (sessionId) => {
+  const { data, error } = await supabase
+    .from('session_photos')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('taken_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export const uploadFoto = async (userId, sessionId, file, caption = '') => {
+  // Genera un nome file univoco
+  const ext      = file.name.split('.').pop() || 'jpg'
+  const filename = `${Date.now()}.${ext}`
+  const path     = `${userId}/${sessionId}/${filename}`
+
+  // Upload nel bucket
+  const { error: uploadError } = await supabase.storage
+    .from('session-photos')
+    .upload(path, file, { contentType: file.type, upsert: false })
+  if (uploadError) throw uploadError
+
+  // Salva il record nel DB
+  const { data, error } = await supabase
+    .from('session_photos')
+    .insert({
+      session_id:   sessionId,
+      user_id:      userId,
+      storage_path: path,
+      caption:      caption || null,
+      taken_at:     new Date().toISOString(),
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const getUrlFoto = (storagePath) => {
+  const { data } = supabase.storage
+    .from('session-photos')
+    .getPublicUrl(storagePath)
+  return data.publicUrl
+}
+
+export const getSignedUrlFoto = async (storagePath) => {
+  const { data, error } = await supabase.storage
+    .from('session-photos')
+    .createSignedUrl(storagePath, 3600) // 1 ora di validità
+  if (error) throw error
+  return data.signedUrl
+}
+
+export const eliminaFoto = async (fotoId, storagePath) => {
+  // Elimina dal storage
+  const { error: storageError } = await supabase.storage
+    .from('session-photos')
+    .remove([storagePath])
+  if (storageError) throw storageError
+
+  // Elimina il record
+  const { error } = await supabase
+    .from('session_photos')
+    .delete()
+    .eq('id', fotoId)
+  if (error) throw error
+}

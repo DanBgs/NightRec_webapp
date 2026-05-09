@@ -676,8 +676,6 @@ export default function Sessione() {
               ))
             }
           </div>
-        </div>
-      </div>
 
           {/* Foto serata */}
           <div className={`card ${s.fotoCard} fade-up-3`}>
