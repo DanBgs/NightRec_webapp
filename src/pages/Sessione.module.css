@@ -247,25 +247,57 @@
 .closedBadge {
   background: var(--green-bg); color: var(--green);
   font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px;
+  white-space: nowrap;
 }
-.closedLayout {
-  display: grid; grid-template-columns: 340px 1fr; gap: 20px;
+
+/* Pagina completa a colonna singola centrata */
+.closedPage {
+  display: flex; flex-direction: column; gap: 16px;
   padding: 16px 20px 40px; max-width: 1200px; margin: 0 auto; width: 100%;
 }
-@media (max-width: 900px) { .closedLayout { grid-template-columns: 1fr; } }
 
-.closedLeft { display: flex; flex-direction: column; gap: 16px; }
+/* Riga superiore: riepilogo (fisso) + grafico (espanso) */
+.closedTopRow {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .closedTopRow { grid-template-columns: 1fr; }
+}
 
-.closedSummary { padding: 24px; }
-.closedTitle { font-size: 20px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 20px; }
-.closedStats { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
-.closedStat { display: flex; flex-direction: column; gap: 3px; min-width: 70px; }
-.closedStatVal { font-size: 22px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--text); }
-.closedStatLbl { font-size: 11px; color: var(--text-muted); }
-.closedStatZona { font-size: 11px; font-weight: 700; margin-top: 2px; }
-.closedTimes { display: flex; gap: 20px; font-size: 13px; color: var(--text-sec); padding-top: 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+/* Riepilogo */
+.closedSummary { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.closedTitle   { font-size: 18px; font-family: 'Syne', sans-serif; color: var(--text); }
 
-/* ── SVG icon wrapper ──────────────────────────────────────────────── */
+.closedBacPicco { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.closedBacVal   { font-size: 48px; font-weight: 800; font-family: 'Syne', sans-serif; letter-spacing: -2px; line-height: 1; }
+.closedBacLbl   { font-size: 12px; color: var(--text-muted); }
+.closedBacZona  { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+.closedGrid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.closedCell { background: var(--bg-input); border-radius: 10px; padding: 10px 12px; }
+.closedCellVal { display: block; font-size: 18px; font-weight: 700; color: var(--text); font-family: 'Syne', sans-serif; }
+.closedCellLbl { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.closedTimes {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text-sec);
+}
+.closedTimeSep { color: var(--text-muted); }
+
+/* Lista drink dentro riepilogo */
+.closedDrinkList { border-top: 1px solid var(--border); padding-top: 12px; }
+.closedDrinkTitle { font-size: 13px; font-weight: 700; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+/* Grafico */
+.closedChart { padding: 20px; }
+
+/* ── SVG icon wrapper/* ── SVG icon wrapper ──────────────────────────────────────────────── */
 .drinkIconWrap { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .catIconWrap   { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
 
@@ -291,3 +323,163 @@
 
 /* ── Foto card ───────────────────────────────────────────────────── */
 .fotoCard { padding: 20px; }
+
+/* ── Water toast notification ────────────────────────────────────── */
+.waterToast {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--green-bg); border: 1px solid var(--green);
+  border-radius: var(--radius-lg); padding: 14px 16px;
+  animation: slideInToast 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes slideInToast {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.waterToastEmoji { font-size: 28px; flex-shrink: 0; }
+.waterToastTitle { font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 2px; }
+.waterToastMsg   { font-size: 12px; color: var(--text-sec); line-height: 1.4; }
+
+/* ── Time picker nel modal drink ─────────────────────────────────── */
+.timePickerRow {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.timePickerToggle {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.timePickerCheck {
+  width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
+}
+.timePickerLabel { font-size: 13px; font-weight: 600; color: var(--text-sec); }
+.timePickerInputRow {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-input); border-radius: var(--radius);
+  padding: 10px 14px; gap: 12px;
+}
+.timePickerHint { font-size: 12px; color: var(--text-muted); }
+.timeInput {
+  background: none; border: none; color: var(--text);
+  font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif;
+  cursor: pointer; outline: none; width: 90px; text-align: right;
+}
+.timeInput::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE — breakpoint principale 768px
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* Header compatto */
+  .header {
+    margin: 8px; padding: 12px 16px;
+    top: 8px;
+  }
+  .back { font-size: 13px; }
+  .headerCenter span { font-size: 11px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .closeBtn { font-size: 12px; padding: 6px 10px; }
+  .adminTag { display: none; }
+
+  /* Layout principale: colonna singola */
+  .layout {
+    grid-template-columns: 1fr;
+    padding: 8px 12px 100px;
+    gap: 12px;
+  }
+
+  /* Gauge più compatta */
+  .gauge { padding: 20px 16px; }
+  .gaugeValue { font-size: 52px; letter-spacing: -2px; }
+  .gaugeLabel { font-size: 10px; }
+  .gaugeBadge { font-size: 12px; padding: 4px 14px; }
+
+  /* Barra BAC */
+  .bacBar { padding: 14px; }
+  .bacBarTitle { font-size: 10px; }
+  .bacBarZona { font-size: 12px; }
+  .bacBarTrack { height: 16px; }
+  .bacBarIndicator { width: 16px; height: 16px; }
+  .bacBarLegend { font-size: 9px; }
+
+  /* Info cards più compatte */
+  .infoCard { padding: 12px 14px; }
+  .infoCardTitle { font-size: 10px; }
+  .infoCardVal { font-size: 15px; }
+  .infoCardSub { font-size: 11px; }
+
+  /* Contatori: scroll orizzontale se troppi */
+  .counters { padding: 12px; overflow-x: auto; gap: 0; }
+  .counterVal { font-size: 14px; }
+  .counterLbl { font-size: 10px; }
+
+  /* Azioni in basso sticky */
+  .actions {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 12px 16px 20px;
+    background: var(--bg); border-top: 1px solid var(--border);
+    z-index: 50; gap: 10px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  }
+
+  /* Grafico full width, altezza ridotta */
+  .chartCard { padding: 14px; }
+  .chartTitle { font-size: 14px; margin-bottom: 10px; }
+  .chartLegend { font-size: 9px; gap: 10px; }
+
+  /* Lista drink */
+  .drinkList { padding: 14px; }
+  .drinkListTitle { font-size: 14px; }
+  .drinkRow { padding: 8px 0; gap: 10px; }
+  .drinkName { font-size: 13px; }
+  .drinkTime { font-size: 11px; }
+  .drinkG { font-size: 12px; }
+
+  /* Foto card */
+  .fotoCard { padding: 14px; }
+
+  /* Admin panel nascosto su mobile di default */
+  .adminPanel { font-size: 12px; }
+  .adminStats { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .adminStatVal { font-size: 10px; }
+
+  /* Modal centrato e più alto */
+  .overlay { align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh; overflow-y: auto;
+    padding: 20px 16px 32px;
+  }
+  .catGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .catBtn { padding: 12px 8px; }
+  .catEmoji { font-size: 24px; }
+  .catLabel { font-size: 12px; }
+  .intBtn { padding: 10px 6px; }
+  .intLabel { font-size: 12px; }
+  .intG { font-size: 10px; }
+
+  /* Confirm modal */
+  .confirmModal { padding: 24px 20px; }
+  .confirmIcon { font-size: 32px; }
+  .confirmTitle { font-size: 19px; }
+
+  /* Serata chiusa su mobile */
+  .closedPage { padding: 8px 12px 32px; gap: 12px; }
+  .closedTopRow { grid-template-columns: 1fr; gap: 12px; }
+  .closedSummary { padding: 16px; }
+  .closedBacVal { font-size: 36px; }
+  .closedGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .closedCellVal { font-size: 15px; }
+  .closedChart { padding: 14px; }
+
+  /* Water toast su mobile */
+  .waterToast { padding: 12px; gap: 10px; }
+  .waterToastEmoji { font-size: 22px; }
+}
+
+/* Extra small — phones < 390px */
+@media (max-width: 390px) {
+  .gaugeValue { font-size: 44px; }
+  .layout { padding: 6px 10px 100px; }
+  .catGrid { grid-template-columns: 1fr 1fr; }
+}

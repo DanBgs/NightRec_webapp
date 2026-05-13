@@ -90,22 +90,31 @@ function SessioneChiusa({ sessione, drinks, isDark, profilo }) {
   const greenColor = isDark ? '#4ade80' : '#16a34a'
   const redColor   = isDark ? '#f87171' : '#dc2626'
 
-  const drinkAlcol = drinks.filter(d => d.categoria !== 'acqua')
-  const totGrammi  = drinkAlcol.reduce((s, d) => s + Number(d.grammi_alcol), 0)
-  const zona       = getZonaBac(sessione.bac_picco ?? 0)
-  const zonaColor  = zona==='sobrio' ? '#94a3b8' : zona==='sweet_spot' ? greenColor : redColor
-  const zonaLabel  = zona==='sobrio' ? 'Sobrio' : zona==='sweet_spot' ? 'Sweet Spot' : 'Alterato'
+  const drinkAlcol  = drinks.filter(d => d.categoria !== 'acqua')
+  const totGrammi   = drinkAlcol.reduce((acc, d) => acc + Number(d.grammi_alcol), 0)
+  const acquaCount  = drinks.filter(d => d.categoria === 'acqua').length
+  const zona        = getZonaBac(sessione.bac_picco ?? 0)
+  const zonaColor   = zona === 'sobrio' ? '#94a3b8' : zona === 'sweet_spot' ? greenColor : redColor
+  const zonaLabel   = zona === 'sobrio' ? 'Sobrio' : zona === 'sweet_spot' ? 'Sweet Spot' : 'Alterato'
 
-  const fmtOra  = (iso) => new Date(iso).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })
-  const fmtData = (iso) => new Date(iso).toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+  const fmtOra  = (iso) => new Date(iso).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+  const fmtData = (iso) => new Date(iso).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  const durataOre = sessione.data_fine
-    ? (new Date(sessione.data_fine) - new Date(sessione.data_inizio)) / 3600000
+  // Durata corretta in minuti → formattata
+  const durataMs  = sessione.data_fine
+    ? new Date(sessione.data_fine) - new Date(sessione.data_inizio)
     : 0
+  const durataMin = Math.round(durataMs / 60000)
+  const durataStr = durataMin < 60
+    ? `${durataMin}min`
+    : `${Math.floor(durataMin / 60)}h ${durataMin % 60}min`
 
-  // Ricalcola la curva storica dai drink
+  // Curva storica ricalcolata dai drink
   const curvaStorica = profilo && drinkAlcol.length > 0
-    ? generaCurvaBac(drinkAlcol.map(d => ({ grammi: Number(d.grammi_alcol), timestamp_ms: new Date(d.timestamp).getTime() })), profilo, 5)
+    ? generaCurvaBac(
+        drinkAlcol.map(d => ({ grammi: Number(d.grammi_alcol), timestamp_ms: new Date(d.timestamp).getTime() })),
+        profilo, 5
+      )
     : []
 
   const chartData = curvaStorica.map(p => ({
@@ -121,124 +130,135 @@ function SessioneChiusa({ sessione, drinks, isDark, profilo }) {
       <header className={`${s.header} card`}>
         <button className={s.back} onClick={() => nav('/')}>← Home</button>
         <div className={s.headerCenter}>
-          <span style={{ fontSize:13, color:'var(--text-muted)' }}>{fmtData(sessione.data_inizio)}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{fmtData(sessione.data_inizio)}</span>
         </div>
         <span className={s.closedBadge}>✓ Serata chiusa</span>
       </header>
 
-      <div className={s.closedLayout}>
+      {/* Layout a colonna singola — tutto sotto al grafico */}
+      <div className={s.closedPage}>
 
-        {/* Colonna sinistra: riepilogo + lista */}
-        <div className={s.closedLeft}>
-        <div className={`card ${s.closedSummary}`}>
-          <h2 className={s.closedTitle}>Riepilogo serata</h2>
-          <div className={s.closedStats}>
-            <div className={s.closedStat}>
-              <span className={s.closedStatVal} style={{ color: zonaColor }}>
-                {sessione.bac_picco != null ? Number(sessione.bac_picco).toFixed(3) : '—'}
-              </span>
-              <span className={s.closedStatLbl}>BAC picco (g/l)</span>
-              <span className={s.closedStatZona} style={{ color: zonaColor }}>{zonaLabel}</span>
-            </div>
-            <div className={s.closedStat}>
-              <span className={s.closedStatVal}>{drinkAlcol.length}</span>
-              <span className={s.closedStatLbl}>drink</span>
-            </div>
-            <div className={s.closedStat}>
-              <span className={s.closedStatVal}>{totGrammi.toFixed(0)}g</span>
-              <span className={s.closedStatLbl}>alcol totale</span>
-            </div>
-            <div className={s.closedStat}>
-              <span className={s.closedStatVal}>{drinks.filter(d=>d.categoria==='acqua').length * 250}ml</span>
-              <span className={s.closedStatLbl}>acqua</span>
-            </div>
-            <div className={s.closedStat}>
-              <span className={s.closedStatVal}>{durataOre.toFixed(1)}h</span>
-              <span className={s.closedStatLbl}>durata</span>
-            </div>
-          </div>
-          <div className={s.closedTimes}>
-            <span>🕐 Inizio: {fmtOra(sessione.data_inizio)}</span>
-            {sessione.data_fine && <span>🏁 Fine: {fmtOra(sessione.data_fine)}</span>}
-          </div>
-        </div>
+        {/* Riga superiore: riepilogo + grafico affiancati su desktop */}
+        <div className={s.closedTopRow}>
 
-        {/* Lista drink */}
-        <div className={`card ${s.drinkList}`}>
-          <h3 className={s.drinkListTitle}>Drink della serata</h3>
-          {drinkAlcol.length === 0
-            ? <p className={s.drinkEmpty}>Nessun drink registrato</p>
-            : drinkAlcol.map(d => (
-              <div key={d.id} className={s.drinkRow}>
-                <div className={s.drinkIconWrap}>
-                  <DrinkIcon categoria={d.categoria} size={22} color="var(--accent)" />
+          {/* Riepilogo compatto */}
+          <div className={`card ${s.closedSummary}`}>
+            <h2 className={s.closedTitle}>Riepilogo</h2>
+
+            {sessione.bac_picco != null && (
+              <div className={s.closedBacPicco}>
+                <span className={s.closedBacVal} style={{ color: zonaColor }}>
+                  {Number(sessione.bac_picco).toFixed(3)}
+                </span>
+                <div>
+                  <div className={s.closedBacLbl}>BAC picco (g/l)</div>
+                  <div className={s.closedBacZona} style={{ color: zonaColor }}>{zonaLabel}</div>
                 </div>
-                <div className={s.drinkInfo}>
-                  <span className={s.drinkName}>
-                    {d.categoria.charAt(0).toUpperCase()+d.categoria.slice(1)}
-                    {d.intensita ? ` · ${d.intensita}` : ''}
-                  </span>
-                  <span className={s.drinkTime}>
-                    {new Date(d.timestamp).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}
-                  </span>
-                </div>
-                <span className={s.drinkG}>{Number(d.grammi_alcol).toFixed(1)}g</span>
               </div>
-            ))
-          }
+            )}
+
+            <div className={s.closedGrid}>
+              <div className={s.closedCell}>
+                <span className={s.closedCellVal}>{drinkAlcol.length}</span>
+                <span className={s.closedCellLbl}>drink</span>
+              </div>
+              <div className={s.closedCell}>
+                <span className={s.closedCellVal}>{totGrammi.toFixed(0)}g</span>
+                <span className={s.closedCellLbl}>alcol</span>
+              </div>
+              <div className={s.closedCell}>
+                <span className={s.closedCellVal}>{acquaCount * 250}ml</span>
+                <span className={s.closedCellLbl}>acqua</span>
+              </div>
+              <div className={s.closedCell}>
+                <span className={s.closedCellVal}>{durataStr}</span>
+                <span className={s.closedCellLbl}>durata</span>
+              </div>
+            </div>
+
+            <div className={s.closedTimes}>
+              <span>🕐 {fmtOra(sessione.data_inizio)}</span>
+              <span className={s.closedTimeSep}>→</span>
+              {sessione.data_fine && <span>🏁 {fmtOra(sessione.data_fine)}</span>}
+            </div>
+
+            {/* Lista drink inline nel riepilogo */}
+            <div className={s.closedDrinkList}>
+              <div className={s.closedDrinkTitle}>Drink della serata</div>
+              {drinkAlcol.length === 0
+                ? <p className={s.drinkEmpty}>Nessun drink registrato</p>
+                : drinkAlcol.map(d => (
+                  <div key={d.id} className={s.drinkRow}>
+                    <div className={s.drinkIconWrap}>
+                      <DrinkIcon categoria={d.categoria} size={18} color="var(--accent)" />
+                    </div>
+                    <div className={s.drinkInfo}>
+                      <span className={s.drinkName}>
+                        {d.categoria.charAt(0).toUpperCase() + d.categoria.slice(1)}
+                        {d.intensita ? ` · ${d.intensita}` : ''}
+                      </span>
+                      <span className={s.drinkTime}>
+                        {new Date(d.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <span className={s.drinkG}>{Number(d.grammi_alcol).toFixed(1)}g</span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          {/* Grafico — si espande su desktop */}
+          {chartData.length > 0 && (
+            <div className={`card ${s.closedChart}`}>
+              <h3 className={s.chartTitle}>Curva BAC</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 16, bottom: 0, left: -20 }}>
+                  <defs>
+                    <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#94a3b8" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}   />
+                    </linearGradient>
+                    <linearGradient id="hgG" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={greenColor} stopOpacity={0.5} />
+                      <stop offset="95%" stopColor={greenColor} stopOpacity={0}   />
+                    </linearGradient>
+                    <linearGradient id="hgR" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={redColor} stopOpacity={0.5} />
+                      <stop offset="95%" stopColor={redColor} stopOpacity={0}   />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="label_ora" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} domain={[0, 'auto']} tickFormatter={v => v.toFixed(2)} />
+                  <Tooltip
+                    contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, fontSize: 12 }}
+                    formatter={(val, name) => {
+                      if (!val || val === 0) return null
+                      const l = { sobrio: 'Sobrio', sweet: 'Sweet Spot', alterato: 'Alterato' }
+                      return [`${Number(val).toFixed(3)} g/l`, l[name] ?? name]
+                    }}
+                    labelStyle={{ color: 'var(--text-sec)', marginBottom: 4 }}
+                  />
+                  <ReferenceLine y={0.5} stroke={redColor}   strokeDasharray="4 4" strokeWidth={1.5} />
+                  <ReferenceLine y={0.2} stroke={greenColor} strokeDasharray="4 4" strokeWidth={1.5} />
+                  <Area type="monotone" dataKey="sobrio"   stroke="#94a3b8"   strokeWidth={2} fill="url(#hgS)" dot={false} activeDot={{ r: 4 }} />
+                  <Area type="monotone" dataKey="sweet"    stroke={greenColor} strokeWidth={2} fill="url(#hgG)" dot={false} activeDot={{ r: 4 }} />
+                  <Area type="monotone" dataKey="alterato" stroke={redColor}   strokeWidth={2} fill="url(#hgR)" dot={false} activeDot={{ r: 4 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+              <div className={s.chartLegend}>
+                <span style={{ color: '#94a3b8' }}>⬤ Sobrio &lt;0.2</span>
+                <span style={{ color: greenColor }}>⬤ Sweet Spot 0.2–0.5</span>
+                <span style={{ color: redColor }}>⬤ Alterato &gt;0.5</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Foto della serata */}
+        {/* Foto — full width sotto il grafico */}
         <div className={`card ${s.fotoCard}`}>
           <FotoSerata sessionId={sessione.id} userId={sessione.user_id} solaLettura={true} />
         </div>
-        </div>
-
-        {/* Colonna destra: grafico storico */}
-        {chartData.length > 0 && (
-          <div className={`card ${s.chartCard}`}>
-            <h3 className={s.chartTitle}>Curva BAC della serata</h3>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={chartData} margin={{top:10,right:16,bottom:0,left:-20}}>
-                <defs>
-                  <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#94a3b8" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="hgG" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor={greenColor} stopOpacity={0.5}/>
-                    <stop offset="95%" stopColor={greenColor} stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="hgR" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor={redColor} stopOpacity={0.5}/>
-                    <stop offset="95%" stopColor={redColor} stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="label_ora" tick={{fontSize:10,fill:'var(--text-muted)'}} interval="preserveStartEnd"/>
-                <YAxis tick={{fontSize:10,fill:'var(--text-muted)'}} domain={[0,'auto']} tickFormatter={v=>v.toFixed(2)}/>
-                <Tooltip
-                  contentStyle={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,fontSize:12}}
-                  formatter={(val,name)=>{
-                    if(!val||val===0) return null
-                    const l={sobrio:'Sobrio',sweet:'Sweet Spot',alterato:'Alterato'}
-                    return [`${Number(val).toFixed(3)} g/l`,l[name]??name]
-                  }}
-                  labelStyle={{color:'var(--text-sec)',marginBottom:4}}
-                />
-                <ReferenceLine y={0.5} stroke={redColor}   strokeDasharray="4 4" strokeWidth={1.5}/>
-                <ReferenceLine y={0.2} stroke={greenColor} strokeDasharray="4 4" strokeWidth={1.5}/>
-                <Area type="monotone" dataKey="sobrio"   stroke="#94a3b8"   strokeWidth={2} fill="url(#hgS)" dot={false} activeDot={{r:4}}/>
-                <Area type="monotone" dataKey="sweet"    stroke={greenColor} strokeWidth={2} fill="url(#hgG)" dot={false} activeDot={{r:4}}/>
-                <Area type="monotone" dataKey="alterato" stroke={redColor}   strokeWidth={2} fill="url(#hgR)" dot={false} activeDot={{r:4}}/>
-              </AreaChart>
-            </ResponsiveContainer>
-            <div className={s.chartLegend}>
-              <span style={{color:'#94a3b8'}}>⬤ Sobrio &lt;0.2</span>
-              <span style={{color:greenColor}}>⬤ Sweet Spot 0.2–0.5</span>
-              <span style={{color:redColor}}>⬤ Alterato &gt;0.5</span>
-            </div>
-          </div>
-        )}
 
       </div>
     </div>
@@ -342,6 +362,12 @@ export default function Sessione() {
   const [catSel, setCatSel]       = useState('birra')
   const [intSel, setIntSel]       = useState('ideale')
   const [adding, setAdding]       = useState(false)
+  const [useCustomTime, setUseCustomTime] = useState(false)
+  const [customTime, setCustomTime]       = useState('')
+
+  // Acqua gamification
+  const [waterPoints, setWaterPoints]   = useState(0)
+  const [waterToast, setWaterToast]     = useState(null) // {msg, emoji}
 
   // Profile modal
   const [showProfile, setShowProfile] = useState(false)
@@ -457,12 +483,35 @@ export default function Sessione() {
     setAdding(true)
     try {
       const grammi = getGrammiPreset(catSel, intSel)
-      const nd     = await aggiungiDrink(id, user.id, catSel, grammi, intSel)
-      const nuovi  = [...drinksRef.current, nd]
+      // Calcola il timestamp: ora corrente o orario personalizzato
+      let timestamp = new Date().toISOString()
+      if (useCustomTime && customTime) {
+        const oggi = new Date()
+        const [hh, mm] = customTime.split(':').map(Number)
+        const ts = new Date(oggi)
+        ts.setHours(hh, mm, 0, 0)
+        // Se l'orario è nel futuro rispetto ad adesso, non permetterlo
+        if (ts > new Date()) {
+          alert('Non puoi aggiungere un drink nel futuro')
+          setAdding(false)
+          return
+        }
+        // Se è prima dell'inizio sessione, non permetterlo
+        if (sessione && ts < new Date(sessione.data_inizio)) {
+          alert('Non puoi aggiungere un drink prima dell\'inizio della serata')
+          setAdding(false)
+          return
+        }
+        timestamp = ts.toISOString()
+      }
+      const nd = await aggiungiDrink(id, user.id, catSel, grammi, intSel, timestamp)
+      const nuovi = [...drinksRef.current, nd].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp))
       drinksRef.current = nuovi
       setDrinks(nuovi)
       ricalcola(nuovi, profilo, timeOffsetRef.current)
       setShowModal(false)
+      setUseCustomTime(false)
+      setCustomTime('')
     } catch(e) { alert(e.message) }
     finally { setAdding(false) }
   }
@@ -478,12 +527,27 @@ export default function Sessione() {
     } catch(e) { alert(e.message) }
   }
 
+  const WATER_TOASTS = [
+    { emoji: '💧', msg: 'Primo bicchiere! Ottimo inizio.' },
+    { emoji: '💦', msg: 'Due bicchieri! Il tuo fegato ti ringrazia.' },
+    { emoji: '🌊', msg: 'Tre bicchieri! Stai facendo benissimo.' },
+    { emoji: '⭐', msg: 'Quattro bicchieri! Sei una rockstar dell\'idratazione.' },
+    { emoji: '🏆', msg: 'Cinque bicchieri! Livello leggenda sbloccato.' },
+    { emoji: '🔱', msg: 'Sei+ bicchieri. Sei di un altro pianeta.' },
+  ]
+
   const handleAcqua = async () => {
     if (!user || !id) return
     try {
       const nd    = await aggiungiDrink(id, user.id, 'acqua', 0, null)
       const nuovi = [...drinksRef.current, nd]
       drinksRef.current = nuovi; setDrinks(nuovi)
+      const nuoviPunti = waterPoints + 1
+      setWaterPoints(nuoviPunti)
+      const idx    = Math.min(nuoviPunti - 1, WATER_TOASTS.length - 1)
+      const toast  = WATER_TOASTS[idx]
+      setWaterToast(toast)
+      setTimeout(() => setWaterToast(null), 3500)
     } catch(e) { alert(e.message) }
   }
 
@@ -588,6 +652,15 @@ export default function Sessione() {
               <span className={s.counterVal}>{acquaCount*250}ml</span>
               <span className={s.counterLbl}>acqua</span>
             </div>
+            {waterPoints > 0 && (
+              <>
+                <div className={s.counterDiv} />
+                <div className={s.counter}>
+                  <span className={s.counterVal} style={{color:'var(--green)'}}>{'💧'.repeat(Math.min(waterPoints,5))}</span>
+                  <span className={s.counterLbl}>{waterPoints} pt. idrat.</span>
+                </div>
+              </>
+            )}
             <div className={s.counterDiv} />
             <div className={s.counter}>
               <span className={s.counterVal} style={{textTransform:'capitalize',fontSize:12}}>
@@ -596,6 +669,17 @@ export default function Sessione() {
               <span className={s.counterLbl}>stomaco</span>
             </div>
           </div>
+
+          {/* Water toast notification */}
+          {waterToast && (
+            <div className={s.waterToast}>
+              <span className={s.waterToastEmoji}>{waterToast.emoji}</span>
+              <div>
+                <div className={s.waterToastTitle}>+1 punto idratazione!</div>
+                <div className={s.waterToastMsg}>{waterToast.msg}</div>
+              </div>
+            </div>
+          )}
 
           <div className={`${s.actions} fade-up-4`}>
             <button className="btn-ghost" style={{flex:1}} onClick={handleAcqua}>
@@ -726,8 +810,37 @@ export default function Sessione() {
                   : <><strong>{g.toFixed(1)}g</strong> di alcol puro</>
               })()}
             </div>
-            <button className="btn-primary" style={{width:'100%',marginTop:16}} onClick={handleAggiungiDrink} disabled={adding}>
-              {adding ? <span className="spinner"/> : 'Aggiungi'}
+            {/* Time picker */}
+            <div className={s.timePickerRow}>
+              <label className={s.timePickerToggle}>
+                <input
+                  type="checkbox"
+                  checked={useCustomTime}
+                  onChange={e => {
+                    setUseCustomTime(e.target.checked)
+                    if (!e.target.checked) setCustomTime('')
+                  }}
+                  className={s.timePickerCheck}
+                />
+                <span className={s.timePickerLabel}>Orario diverso da adesso</span>
+              </label>
+              {useCustomTime && (
+                <div className={s.timePickerInputRow}>
+                  <span className={s.timePickerHint}>
+                    Serata iniziata alle {sessione ? new Date(sessione.data_inizio).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '--:--'}
+                  </span>
+                  <input
+                    type="time"
+                    className={s.timeInput}
+                    value={customTime}
+                    onChange={e => setCustomTime(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+
+            <button className="btn-primary" style={{width:'100%',marginTop:12}} onClick={handleAggiungiDrink} disabled={adding}>
+              {adding ? <span className="spinner"/> : useCustomTime && customTime ? `Aggiungi alle ${customTime}` : 'Aggiungi adesso'}
             </button>
           </div>
         </div>
