@@ -5,18 +5,14 @@ import Auth from './pages/Auth.jsx'
 import Home from './pages/Home.jsx'
 import NuovaSessione from './pages/NuovaSessione.jsx'
 import Sessione from './pages/Sessione.jsx'
+import JamLobby from './pages/JamLobby.jsx'
+import JamSessione from './pages/JamSessione.jsx'
 
 function Guard({ children }) {
   const { user, loading } = useAuth()
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{
-        width: 36, height: 36,
-        border: '3px solid var(--border)',
-        borderTopColor: 'var(--accent)',
-        borderRadius: '50%',
-        animation: 'spin .7s linear infinite'
-      }} />
+      <div style={{ width:36, height:36, border:'3px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin .7s linear infinite' }} />
     </div>
   )
   if (!user) return <Navigate to="/auth" replace />
@@ -29,11 +25,13 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Guard><Home /></Guard>} />
-            <Route path="/nuova" element={<Guard><NuovaSessione /></Guard>} />
-            <Route path="/sessione/:id" element={<Guard><Sessione /></Guard>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/auth"           element={<Auth />} />
+            <Route path="/"               element={<Guard><Home /></Guard>} />
+            <Route path="/nuova"          element={<Guard><NuovaSessione /></Guard>} />
+            <Route path="/sessione/:id"   element={<Guard><Sessione /></Guard>} />
+            <Route path="/jam"            element={<Guard><JamLobby /></Guard>} />
+            <Route path="/jam/:id"        element={<Guard><JamSessione /></Guard>} />
+            <Route path="*"               element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

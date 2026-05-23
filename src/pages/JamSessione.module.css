@@ -1,0 +1,159 @@
+/* ── Root ─────────────────────────────────────────────────── */
+.root    { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+/* ── Header ──────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; margin: 12px; position: sticky; top: 12px; z-index: 50;
+}
+.back { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; }
+.headerCenter { flex: 1; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.jamName   { font-size: 15px; font-weight: 700; color: var(--text); font-family: 'Syne', sans-serif; }
+.jamCode   { font-size: 11px; color: var(--text-muted); letter-spacing: 2px; }
+.headerRight { display: flex; gap: 8px; }
+.avviaBtn  { background: var(--green); color: #fff; border: none; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s; }
+.avviaBtn:hover { opacity: .85; }
+.chiudiBtn { background: var(--red); color: #fff; border: none; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.closedTag { background: var(--green-bg); color: var(--green); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; }
+
+/* ── Waiting screen ──────────────────────────────────────── */
+.waitingScreen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.waitingCard   { text-align: center; max-width: 400px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.waitingIcon   { font-size: 52px; }
+.waitingCard h2 { font-size: 24px; color: var(--text); }
+.waitingCard p  { font-size: 14px; color: var(--text-sec); }
+
+.codeDisplay {
+  font-size: 48px; font-weight: 800; letter-spacing: 10px; color: var(--accent);
+  font-family: 'Syne', sans-serif; background: var(--accent-bg);
+  padding: 16px 28px; border-radius: 16px; border: 2px solid var(--accent);
+}
+.waitingMembers { font-size: 13px; color: var(--text-muted); }
+.waitingList { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.waitingMember {
+  display: flex; align-items: center; gap: 10px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+}
+.waitingDot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.waitingMember span { font-size: 14px; color: var(--text); flex: 1; text-align: left; }
+.hostTag { font-size: 11px; color: var(--amber); background: var(--amber-bg); padding: 2px 8px; border-radius: 8px; font-weight: 700; }
+.hostActions { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; }
+.avviaBtnLarge { width: 100%; font-size: 16px; padding: 15px; }
+
+/* ── Layout attivo ───────────────────────────────────────── */
+.layout {
+  display: grid; grid-template-columns: 300px 1fr; gap: 16px;
+  padding: 8px 16px 40px; max-width: 1200px; margin: 0 auto; width: 100%;
+}
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.leftCol  { display: flex; flex-direction: column; gap: 12px; }
+.rightCol { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Gauge personale ─────────────────────────────────────── */
+.myGauge {
+  padding: 20px; border: 2px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: border-color 0.3s;
+}
+.myGaugeTop   { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px; }
+.myGaugeLabel { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+.myZonaBadge  { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.myGaugeValue { font-size: 60px; font-weight: 800; font-family: 'Syne', sans-serif; letter-spacing: -2px; line-height: 1; }
+.myGaugeUnit  { font-size: 13px; color: var(--text-muted); }
+.myGhostHint  { font-size: 12px; color: var(--text-sec); margin-top: 6px; text-align: center; }
+.myGhostHint strong { color: var(--text); }
+.myDriveHint  { font-size: 12px; color: var(--text-sec); text-align: center; }
+
+/* ── Leaderboard ─────────────────────────────────────────── */
+.leaderboard { padding: 16px; }
+.lbTitle     { font-size: 14px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 12px; }
+.lbRow {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: 10px; transition: background 0.15s;
+}
+.lbRow:hover { background: var(--bg-input); }
+.lbRowMe     { background: var(--accent-bg); }
+.lbRank      { font-size: 12px; font-weight: 700; color: var(--text-muted); width: 16px; flex-shrink: 0; }
+.lbColorDot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.lbName      { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; }
+.bacBadge    { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 12px; flex-shrink: 0; }
+
+/* ── Host panel ──────────────────────────────────────────── */
+.hostPanel { padding: 14px; }
+.hostPanelTitle { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+
+/* ── Actions ─────────────────────────────────────────────── */
+.actions { display: flex; gap: 10px; }
+
+/* ── Chart cards ─────────────────────────────────────────── */
+.chartCard    { padding: 18px; }
+.chartTitle   { font-size: 15px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 14px; }
+.chartLegendJam { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+.legendItem   { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-sec); }
+.legendDot    { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Drink list ──────────────────────────────────────────── */
+.drinkList      { padding: 16px; }
+.drinkListTitle { font-size: 15px; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 12px; }
+.drinkEmpty     { font-size: 13px; color: var(--text-muted); text-align: center; padding: 16px 0; }
+.drinkRow       { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.drinkRow:last-child { border-bottom: none; }
+.drinkIconWrap  { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.drinkInfo      { flex: 1; }
+.drinkName      { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+.drinkTime      { display: block; font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.drinkG         { font-size: 12px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+.drinkRemove    { background: none; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0; }
+.drinkRemove:hover { background: var(--red-bg); color: var(--red); }
+
+/* ── Modal base ──────────────────────────────────────────── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(4px); }
+@media (min-width: 600px) { .overlay { align-items: center; } }
+.modal { width: 100%; max-width: 500px; padding: 24px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; }
+@media (min-width: 600px) { .modal { border-radius: 20px; } }
+.modalHead  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modalHead h3 { font-size: 18px; font-family: 'Syne', sans-serif; color: var(--text); }
+.modalClose { background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; }
+.modalSub   { font-size: 13px; color: var(--text-sec); margin-bottom: 16px; line-height: 1.5; }
+
+/* ── Menu modal ──────────────────────────────────────────── */
+.menuGrid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+.menuGroup { }
+.menuGroupTitle { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.menuItem { display: flex; align-items: center; gap: 10px; width: 100%; background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; margin-bottom: 6px; }
+.menuItemSel { border-color: var(--accent); background: var(--accent-bg); }
+.menuCheck    { font-size: 14px; color: var(--text-muted); width: 18px; }
+.menuCheckSel { font-size: 14px; color: var(--accent); width: 18px; font-weight: 700; }
+.menuItemLabel { flex: 1; font-size: 13px; color: var(--text); text-align: left; }
+.menuItemG     { font-size: 11px; color: var(--text-muted); }
+.menuSalvaBtn  { width: 100%; font-size: 14px; }
+
+/* ── Drink select modal ──────────────────────────────────── */
+.menuSelectGrid { display: flex; flex-direction: column; gap: 8px; }
+.menuSelectBtn  { display: flex; align-items: center; gap: 12px; width: 100%; background: var(--bg-input); border: 2px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; }
+.menuSelectBtn:hover { border-color: var(--accent); }
+.menuSelectBtnSel { border-color: var(--accent); background: var(--accent-bg); }
+.menuSelectLabel { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); text-align: left; }
+.menuSelectG { font-size: 12px; color: var(--text-muted); }
+
+/* ── Jam chiusa ──────────────────────────────────────────── */
+.closedJam     { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.closedJamCard { padding: 32px; text-align: center; max-width: 440px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.closedJamIcon { font-size: 52px; }
+.closedJamTitle { font-size: 24px; color: var(--text); }
+.closedJamResults { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.closedResult { display: flex; align-items: center; gap: 12px; background: var(--bg-input); border-radius: 12px; padding: 12px 16px; }
+.closedResultRank { font-size: 20px; width: 28px; flex-shrink: 0; }
+.closedResultName { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); text-align: left; }
+.closedResultBac  { font-size: 13px; font-weight: 700; color: var(--accent); }
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .layout { padding: 8px 12px 100px; gap: 12px; }
+  .header { margin: 8px; padding: 10px 14px; }
+  .myGaugeValue { font-size: 48px; }
+  .actions { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 20px; background: var(--bg); border-top: 1px solid var(--border); z-index: 50; }
+  .modal { border-radius: 20px 20px 0 0; }
+  .codeDisplay { font-size: 36px; letter-spacing: 6px; padding: 12px 20px; }
+}

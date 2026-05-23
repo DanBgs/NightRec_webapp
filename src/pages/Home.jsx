@@ -176,6 +176,9 @@ export default function Home() {
           </button>
           <button className="btn-ghost" onClick={() => setShowProfile(true)}>👤 {nomeUtente || 'Profilo'}</button>
           <button className="btn-ghost" onClick={handleLogout}>Esci</button>
+          <button className="btn-ghost" onClick={() => nav('/jam')} title="Jam Session">
+            🎉 Jam
+          </button>
           <button className="btn-primary" onClick={() => nav('/nuova')}>+ Nuova serata</button>
         </div>
       </header>
@@ -191,6 +194,7 @@ export default function Home() {
             <h2>Nessuna serata ancora</h2>
             <p>Inizia la tua prima serata per monitorare il BAC</p>
             <button className="btn-primary" onClick={() => nav('/nuova')}>+ Inizia adesso</button>
+            <button className="btn-ghost" onClick={() => nav('/jam')}>🎉 Avvia una Jam</button>
           </div>
         ) : (
           <div className={s.grid}>
