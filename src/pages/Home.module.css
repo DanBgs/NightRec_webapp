@@ -142,3 +142,123 @@
 .modalFooter { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
 .modalError   { background: var(--red-bg);   color: var(--red);   border-radius: 10px; padding: 12px; font-size: 13px; margin-bottom: 12px; }
 .modalSuccess { background: var(--green-bg); color: var(--green); border-radius: 10px; padding: 12px; font-size: 13px; margin-bottom: 12px; }
+
+/* ── Header icon buttons ─────────────────────────────────── */
+.iconBtn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; cursor: pointer;
+  color: var(--text-sec); font-size: 13px; font-weight: 500;
+  transition: background 0.15s; white-space: nowrap;
+}
+.iconBtn:hover { background: var(--border); }
+.iconBtnLabel { display: none; }
+@media (min-width: 900px) { .iconBtnLabel { display: inline; } }
+
+.newBtn {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; padding: 9px 16px; font-size: 14px;
+  font-weight: 700; cursor: pointer; font-family: 'Syne', sans-serif;
+  white-space: nowrap; transition: opacity 0.15s;
+}
+.newBtn:hover { opacity: 0.88; }
+
+/* ── Jam card ─────────────────────────────────────────────── */
+.emptyWrapper { display: flex; flex-direction: column; gap: 14px; max-width: 480px; margin: 0 auto; width: 100%; }
+
+.jamCard {
+  display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  border: 1.5px solid var(--accent); background: var(--accent-bg);
+  order: -1; /* Sempre prima nella griglia */
+}
+.jamCard:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,89,60,0.2); }
+
+.jamCardLarge { padding: 22px 24px; }
+
+.jamCardIcon { font-size: 32px; flex-shrink: 0; }
+.jamCardContent { flex: 1; }
+.jamCardTitle { font-size: 17px; font-weight: 700; color: var(--accent); font-family: 'Syne', sans-serif; }
+.jamCardSub { font-size: 13px; color: var(--text-sec); margin-top: 3px; }
+.jamCardArrow { font-size: 18px; color: var(--accent); font-weight: 700; transition: transform 0.15s; }
+.jamCard:hover .jamCardArrow { transform: translateX(4px); }
+
+/* Mobile header */
+@media (max-width: 640px) {
+  .headerRight { gap: 6px; }
+  .themeSwitch { display: flex; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE HEADER — hamburger menu mobile
+   ═══════════════════════════════════════════════════════════ */
+
+/* Desktop: mostra headerRight, nascondi mobileActions */
+.headerRight    { display: flex; align-items: center; gap: 8px; }
+.mobileActions  { display: none; align-items: center; gap: 8px; }
+
+/* Mobile: nascondi headerRight, mostra mobileActions */
+@media (max-width: 700px) {
+  .headerRight   { display: none; }
+  .mobileActions { display: flex; position: relative; }
+}
+
+/* ── Hamburger ────────────────────────────────────────────── */
+.hamburger {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 5px; width: 38px; height: 38px; padding: 8px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer;
+}
+.hamburgerLine {
+  display: block; height: 2px; background: var(--text);
+  border-radius: 2px; transition: transform 0.25s, opacity 0.2s;
+  transform-origin: center;
+}
+.hamburgerLine1Open  { transform: translateY(7px) rotate(45deg); }
+.hamburgerLineHidden { opacity: 0; transform: scaleX(0); }
+.hamburgerLine3Open  { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Mobile dropdown ─────────────────────────────────────── */
+.mobileMenu {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  min-width: 220px; z-index: 200; overflow: hidden;
+  animation: dropIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mobileMenuItem {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 14px 18px; background: none; border: none;
+  font-size: 15px; font-weight: 500; color: var(--text);
+  cursor: pointer; transition: background 0.15s; text-align: left;
+}
+.mobileMenuItem:hover { background: var(--bg-input); }
+
+.mobileMenuDivider {
+  height: 1px; background: var(--border); margin: 4px 0;
+}
+
+.mobileMenuItemDanger { color: var(--red); }
+.mobileMenuItemDanger:hover { background: var(--red-bg); }
+
+/* ── Grid responsive con Jam card in cima ─────────────────── */
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+  .jamCard { flex-direction: row; }
+}
+
+/* ── Header compatto su mobile ────────────────────────────── */
+@media (max-width: 700px) {
+  .header { padding: 12px 14px; margin: 10px; top: 10px; }
+  .logo   { font-size: 22px; }
+  .title  { font-size: 17px; }
+  .sub    { font-size: 11px; }
+  .main   { padding: 6px 12px 32px; }
+  .grid   { gap: 12px; }
+}

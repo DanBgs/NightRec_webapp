@@ -133,6 +133,17 @@ export default function Home() {
   const [showProfile, setShowProfile]   = useState(false)
   const [sessioneDaEliminare, setSessioneDaEliminare] = useState(null)
   const [nomeUtente, setNomeUtente]     = useState('')
+  const [menuAperto, setMenuAperto]     = useState(false)
+
+  // Chiude il menu mobile cliccando fuori
+  useEffect(() => {
+    if (!menuAperto) return
+    const handle = (e) => {
+      if (!e.target.closest('[data-mobile-menu]')) setMenuAperto(false)
+    }
+    document.addEventListener('click', handle)
+    return () => document.removeEventListener('click', handle)
+  }, [menuAperto])
 
   const carica = () => {
     if (!user) return
@@ -166,21 +177,62 @@ export default function Home() {
             <p className={s.sub}>{sessioni.length} serate registrate</p>
           </div>
         </div>
+
+        {/* Desktop actions */}
         <div className={s.headerRight}>
-          <button className={s.themeSwitch} onClick={toggle} title={isDark ? 'Passa al tema chiaro' : 'Passa al tema scuro'} aria-label="Cambia tema">
+          <button className={s.themeSwitch} onClick={toggle} aria-label="Cambia tema">
             <span className={`${s.themeSwitchTrack} ${isDark ? s.themeSwitchDark : ''}`}>
-              <span className={s.themeSwitchThumb}>
-                {isDark ? '🌙' : '☀️'}
-              </span>
+              <span className={s.themeSwitchThumb}>{isDark ? '🌙' : '☀️'}</span>
             </span>
           </button>
-          <button className="btn-ghost" onClick={() => setShowProfile(true)}>👤 {nomeUtente || 'Profilo'}</button>
-          <button className="btn-ghost" onClick={handleLogout}>Esci</button>
-          <button className="btn-ghost" onClick={() => nav('/jam')} title="Jam Session">
+          <button className={s.iconBtn} onClick={() => setShowProfile(true)}>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.6"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+            {nomeUtente || 'Profilo'}
+          </button>
+          <button className={s.iconBtn} onClick={() => nav('/jam')}>
             🎉 Jam
           </button>
-          <button className="btn-primary" onClick={() => nav('/nuova')}>+ Nuova serata</button>
+          <button className={s.iconBtn} onClick={handleLogout}>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M13 3h4v14h-4M8 14l4-4-4-4M12 10H3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Esci
+          </button>
+          <button className={s.newBtn} onClick={() => nav('/nuova')}>+ Nuova serata</button>
         </div>
+
+        {/* Mobile: solo switch tema + hamburger */}
+        <div className={s.mobileActions} data-mobile-menu>
+          <button className={s.themeSwitch} onClick={toggle} aria-label="Cambia tema">
+            <span className={`${s.themeSwitchTrack} ${isDark ? s.themeSwitchDark : ''}`}>
+              <span className={s.themeSwitchThumb}>{isDark ? '🌙' : '☀️'}</span>
+            </span>
+          </button>
+          <button className={s.hamburger} onClick={() => setMenuAperto(p => !p)} aria-label="Menu">
+            <span className={`${s.hamburgerLine} ${menuAperto ? s.hamburgerLine1Open : ''}`} />
+            <span className={`${s.hamburgerLine} ${menuAperto ? s.hamburgerLineHidden : ''}`} />
+            <span className={`${s.hamburgerLine} ${menuAperto ? s.hamburgerLine3Open : ''}`} />
+          </button>
+        </div>
+
+        {/* Mobile dropdown menu */}
+        {menuAperto && (
+          <div className={s.mobileMenu} data-mobile-menu>
+            <button className={s.mobileMenuItem} onClick={() => { setShowProfile(true); setMenuAperto(false) }}>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.6"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+              {nomeUtente || 'Profilo'}
+            </button>
+            <button className={s.mobileMenuItem} onClick={() => { nav('/jam'); setMenuAperto(false) }}>
+              🎉 Jam Session
+            </button>
+            <button className={s.mobileMenuItem} onClick={() => { nav('/nuova'); setMenuAperto(false) }}>
+              + Nuova serata
+            </button>
+            <div className={s.mobileMenuDivider} />
+            <button className={`${s.mobileMenuItem} ${s.mobileMenuItemDanger}`} onClick={handleLogout}>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 3h4v14h-4M8 14l4-4-4-4M12 10H3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Esci
+            </button>
+          </div>
+        )}
       </header>
 
       <main className={s.main}>
@@ -189,15 +241,35 @@ export default function Home() {
             <div style={{ width:32,height:32,border:'3px solid var(--border)',borderTopColor:'var(--accent)',borderRadius:'50%',animation:'spin .7s linear infinite' }} />
           </div>
         ) : sessioni.length === 0 ? (
-          <div className={`${s.empty} card fade-up`}>
-            <div className={s.emptyIcon}>🌙</div>
-            <h2>Nessuna serata ancora</h2>
-            <p>Inizia la tua prima serata per monitorare il BAC</p>
-            <button className="btn-primary" onClick={() => nav('/nuova')}>+ Inizia adesso</button>
-            <button className="btn-ghost" onClick={() => nav('/jam')}>🎉 Avvia una Jam</button>
+          <div className={s.emptyWrapper}>
+            <div className={`card ${s.jamCard} ${s.jamCardLarge} fade-up`} onClick={() => nav('/jam')}>
+              <div className={s.jamCardIcon}>🎉</div>
+              <div className={s.jamCardContent}>
+                <div className={s.jamCardTitle}>Jam Session</div>
+                <div className={s.jamCardSub}>Monitora il BAC con gli amici in tempo reale</div>
+              </div>
+              <div className={s.jamCardArrow}>→</div>
+            </div>
+            <div className={`${s.empty} card fade-up-2`}>
+              <div className={s.emptyIcon}>🌙</div>
+              <h2>Nessuna serata ancora</h2>
+              <p>Inizia la tua prima serata per monitorare il BAC</p>
+              <button className="btn-primary" onClick={() => nav('/nuova')}>+ Inizia adesso</button>
+            </div>
           </div>
         ) : (
           <div className={s.grid}>
+
+            {/* Card Jam Session — sempre visibile */}
+            <div className={`card ${s.jamCard} fade-up`} onClick={() => nav('/jam')}>
+              <div className={s.jamCardIcon}>🎉</div>
+              <div className={s.jamCardContent}>
+                <div className={s.jamCardTitle}>Jam Session</div>
+                <div className={s.jamCardSub}>Monitora il BAC con gli amici in tempo reale</div>
+              </div>
+              <div className={s.jamCardArrow}>→</div>
+            </div>
+
             {sessioni.map((sess, i) => (
               <div key={sess.id} className={`card ${s.sessionCard} fade-up`}
                 style={{ animationDelay: `${i * 0.05}s` }}>
