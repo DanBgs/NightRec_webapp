@@ -61,7 +61,7 @@ NightRec_webapp/
 ├── package-lock.json       # Blocco rigoroso delle versioni delle dipendenze npm
 ├── vercel.json             # File di configurazione per il routing e l'hosting su Vercel
 └── vite.config.js          # Configurazione del bundler e dei plugin di Vite
-```[cite: 1]
+```
 
 ---
 
