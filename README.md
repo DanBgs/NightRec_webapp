@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Indice
+## Indice
 1. [Panoramica del Progetto](#-panoramica-del-progetto)
 2. [Tecnologie e Stack Tecnologico](#-tecnologie-e-stack-tecnologico)
 3. [Struttura dei File e della Repository](#-struttura-dei-file-e-della-repository)
@@ -99,12 +99,6 @@ npm run dev
   ```
     Ottimizza, minimizza e compila l'applicazione per la distribuzione finale. Il risultato verrà salvato all'interno di una cartella `/dist`.
 
-* **Controllo della qualità (Linting):**
-```bash
-    npm run lint
-  ```
-    Esegue ESLint su tutto il codice sorgente per identificare errori di sintassi, pattern scorretti o violazioni dello stile del codice.
-
 * **Anteprima della build di produzione:**
 ```bash
     npm run preview
@@ -128,7 +122,7 @@ La repository è già predisposta per un deployment istantaneo su **Vercel** tra
 
 ---
 
-## 🧠 Linee Guida per lo Sviluppo (Best Practices)
+## Linee Guida per lo Sviluppo (Best Practices)
 
 Per mantenere la codebase pulita e coerente, si prega di seguire queste convenzioni:
 
