@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth.jsx'
 import { useTheme } from '../lib/theme.jsx'
 import { caricaProfile } from '../lib/supabase.js'
-import { creaJam, uniscitiJam } from '../lib/supabaseJam.js'
+import { creaJam, uniscitiJamViaCodice } from '../lib/supabaseJam.js'
 import s from './JamLobby.module.css'
 
 const STOMACO_OPT = [
@@ -50,7 +50,7 @@ export default function JamLobby() {
     setLoading(true)
     try {
       const profile = await caricaProfile(user.id)
-      const jam = await uniscitiJam(user.id, codice, stomacoGuest, profile?.username || user.email?.split('@')[0])
+      const jam = await uniscitiJamViaCodice(user.id, codice, stomacoGuest, profile?.username || user.email?.split('@')[0])
       nav(`/jam/${jam.id}`)
     } catch(e) { setError(e.message) }
     finally { setLoading(false) }
@@ -72,10 +72,10 @@ export default function JamLobby() {
       <div className={`card ${s.card}`}>
         <div className={s.tabs}>
           <button className={`${s.tab} ${tab==='crea'?s.tabActive:''}`} onClick={() => { setTab('crea'); setError('') }}>
-            🎸 Crea serata
+            Crea serata
           </button>
           <button className={`${s.tab} ${tab==='unisciti'?s.tabActive:''}`} onClick={() => { setTab('unisciti'); setError('') }}>
-            🚀 Unisciti
+            Unisciti
           </button>
         </div>
 
