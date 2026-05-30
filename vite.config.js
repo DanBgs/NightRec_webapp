@@ -9,16 +9,24 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Controlliamo se il modulo proviene da node_modules
-          if (id.includes('node_modules')) {
-            // Dividi in base al nome della libreria nel percorso
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+          // Normalizziamo i separatori di percorso per evitare problemi tra Windows (\\) e Linux (/)
+          const normalizedId = id.replace(/\\/g, '/');
+
+          if (normalizedId.includes('node_modules')) {
+            // Separa core React e Router
+            if (
+              normalizedId.includes('/node_modules/react/') || 
+              normalizedId.includes('/node_modules/react-dom/') || 
+              normalizedId.includes('/node_modules/react-router-dom/')
+            ) {
               return 'react';
             }
-            if (id.includes('@supabase')) {
+            // Separa Supabase
+            if (normalizedId.includes('/node_modules/@supabase/')) {
               return 'supabase';
             }
-            if (id.includes('recharts')) {
+            // Separa i grafici
+            if (normalizedId.includes('/node_modules/recharts/')) {
               return 'charts';
             }
           }
