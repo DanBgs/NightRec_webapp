@@ -8,10 +8,20 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          react:    ['react', 'react-dom', 'react-router-dom'],
-          supabase: ['@supabase/supabase-js'],
-          charts:   ['recharts'],
+        manualChunks(id) {
+          // Controlliamo se il modulo proviene da node_modules
+          if (id.includes('node_modules')) {
+            // Dividi in base al nome della libreria nel percorso
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('recharts')) {
+              return 'charts';
+            }
+          }
         },
       },
     },
