@@ -1,17 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
+ 
 export default defineConfig({
   plugins: [react()],
-  // Niente vite-plugin-pwa — usiamo manifest.json manuale
-  // più semplice e funziona su Vercel senza configurazione extra
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          react:    ['react', 'react-dom', 'react-router-dom'],
-          supabase: ['@supabase/supabase-js'],
-          charts:   ['recharts'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('react-router-dom')) {
+            return 'react'
+          }
+          if (id.includes('@supabase')) {
+            return 'supabase'
+          }
+          if (id.includes('recharts')) {
+            return 'charts'
+          }
         },
       },
     },
