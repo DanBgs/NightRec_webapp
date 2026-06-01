@@ -43,7 +43,7 @@ function Classifica({ partecipanti, myId }) {
   const sorted = [...partecipanti].sort((a, b) => (b.bac_attuale ?? 0) - (a.bac_attuale ?? 0))
   return (
     <div className={s.classifica}>
-      <div className={s.classificaTitle}>🏟 Partecipanti</div>
+      <div className={s.classificaTitle}> Partecipanti</div>
       {sorted.map((p, i) => {
         const color = getColor(partecipanti.findIndex(x => x.user_id === p.user_id))
         const isMe  = p.user_id === myId
