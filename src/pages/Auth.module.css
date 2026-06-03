@@ -28,7 +28,7 @@
 }
 .left::before {
   content: ''; position: absolute; width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(232,89,60,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(232, 89, 60, 0.15) 0%, transparent 70%);
   top: -100px; right: -100px; pointer-events: none;
 }
 .brand        { margin-bottom: 48px; }
