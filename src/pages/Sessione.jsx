@@ -362,8 +362,6 @@ export default function Sessione() {
   const [catSel, setCatSel]       = useState('birra')
   const [intSel, setIntSel]       = useState('ideale')
   const [adding, setAdding]       = useState(false)
-  const [useCustomTime, setUseCustomTime] = useState(false)
-  const [customTime, setCustomTime]       = useState('')
 
   // Acqua gamification
   const [waterPoints, setWaterPoints]   = useState(0)
@@ -483,35 +481,12 @@ export default function Sessione() {
     setAdding(true)
     try {
       const grammi = getGrammiPreset(catSel, intSel)
-      // Calcola il timestamp: ora corrente o orario personalizzato
-      let timestamp = new Date().toISOString()
-      if (useCustomTime && customTime) {
-        const oggi = new Date()
-        const [hh, mm] = customTime.split(':').map(Number)
-        const ts = new Date(oggi)
-        ts.setHours(hh, mm, 0, 0)
-        // Se l'orario è nel futuro rispetto ad adesso, non permetterlo
-        if (ts > new Date()) {
-          alert('Non puoi aggiungere un drink nel futuro')
-          setAdding(false)
-          return
-        }
-        // Se è prima dell'inizio sessione, non permetterlo
-        if (sessione && ts < new Date(sessione.data_inizio)) {
-          alert('Non puoi aggiungere un drink prima dell\'inizio della serata')
-          setAdding(false)
-          return
-        }
-        timestamp = ts.toISOString()
-      }
-      const nd = await aggiungiDrink(id, user.id, catSel, grammi, intSel, timestamp)
-      const nuovi = [...drinksRef.current, nd].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp))
+      const nd = await aggiungiDrink(id, user.id, catSel, grammi, intSel)
+      const nuovi = [...drinksRef.current, nd]
       drinksRef.current = nuovi
       setDrinks(nuovi)
       ricalcola(nuovi, profilo, timeOffsetRef.current)
       setShowModal(false)
-      setUseCustomTime(false)
-      setCustomTime('')
     } catch(e) { alert(e.message) }
     finally { setAdding(false) }
   }
@@ -810,37 +785,8 @@ export default function Sessione() {
                   : <><strong>{g.toFixed(1)}g</strong> di alcol puro</>
               })()}
             </div>
-            {/* Time picker */}
-            <div className={s.timePickerRow}>
-              <label className={s.timePickerToggle}>
-                <input
-                  type="checkbox"
-                  checked={useCustomTime}
-                  onChange={e => {
-                    setUseCustomTime(e.target.checked)
-                    if (!e.target.checked) setCustomTime('')
-                  }}
-                  className={s.timePickerCheck}
-                />
-                <span className={s.timePickerLabel}>Orario diverso da adesso</span>
-              </label>
-              {useCustomTime && (
-                <div className={s.timePickerInputRow}>
-                  <span className={s.timePickerHint}>
-                    Serata iniziata alle {sessione ? new Date(sessione.data_inizio).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '--:--'}
-                  </span>
-                  <input
-                    type="time"
-                    className={s.timeInput}
-                    value={customTime}
-                    onChange={e => setCustomTime(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-
-            <button className="btn-primary" style={{width:'100%',marginTop:12}} onClick={handleAggiungiDrink} disabled={adding}>
-              {adding ? <span className="spinner"/> : useCustomTime && customTime ? `Aggiungi alle ${customTime}` : 'Aggiungi adesso'}
+            <button className="btn-primary" style={{width:'100%',marginTop:16}} onClick={handleAggiungiDrink} disabled={adding}>
+              {adding ? <span className="spinner"/> : 'Aggiungi'}
             </button>
           </div>
         </div>

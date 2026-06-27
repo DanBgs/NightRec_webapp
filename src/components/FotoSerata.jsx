@@ -158,7 +158,13 @@ export default function FotoSerata({ sessionId, userId, solaLettura = false }) {
     const canvas = canvasRef.current
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
-    canvas.getContext('2d').drawImage(video, 0, 0)
+    const ctx = canvas.getContext('2d')
+    if (cameraFacing === 'user') {
+      // Specchia orizzontalmente il selfie prima di salvarlo
+      ctx.translate(canvas.width, 0)
+      ctx.scale(-1, 1)
+    }
+    ctx.drawImage(video, 0, 0)
     canvas.toBlob(blob => {
       if (!blob) return
       setCapturedBlob(blob)
@@ -296,7 +302,7 @@ export default function FotoSerata({ sessionId, userId, solaLettura = false }) {
               {capturedPreview ? (
                 <img src={capturedPreview} alt="anteprima" className={s.cameraPreviewImg} />
               ) : (
-                <video ref={videoRef} className={s.cameraVideo} playsInline muted />
+                <video ref={videoRef} className={cameraFacing === 'user' ? s.cameraVideoMirrored : s.cameraVideo} playsInline muted />
               )}
               <canvas ref={canvasRef} className={s.hidden} />
             </div>
